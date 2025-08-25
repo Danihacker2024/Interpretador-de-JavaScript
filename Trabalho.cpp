@@ -6,12 +6,16 @@
 
 void leArq(){
 	Linha *inicio=NULL;
-	
+	StrDin *str;
 	FILE *arq = fopen("exemplo.js","r");
-	char linha[300];
-	while(fscanf(arq,"%[^\n]",linha)){
+	char caracter;
+	fscanf(arq,"%c",&caracter);
+	while(!feof(arq)){
+		insereCaracter(*str, caracter);
 		
-		fgetc(arq);
+		
+		
+		fscanf(arq,"%c",&caracter);
 	}
 }
 

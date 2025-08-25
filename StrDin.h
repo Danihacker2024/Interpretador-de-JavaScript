@@ -6,13 +6,21 @@ struct stringdin{
 	struct stringdin *prox;
 };typedef strut stringdin StrDin;
 
-void init(StrDin **str){
-	*str=NULL;
-}
-
-void push(StrDin **str, char c){
+void insereCaracter(StrDin **str, char c){
+	StrDin *aux;
 	StrDin *nova = (StrDin*)malloc(sizeof(StrDin));
 	nova->letra=c;
-	nova->prox=*str;
-	*str=nova;
+	nova->prox=NULL;
+	if(c=="."){
+		char string[50]=juntaString(str);
+		adicionarToken(Linha,string);
+	}
+	if(*str==NULL)
+		*str=nova;
+	else{
+		aux=*str;
+		while(aux->prox!=NULL)
+			aux=aux->prox;
+		aux->prox=nome;
+	}
 }
