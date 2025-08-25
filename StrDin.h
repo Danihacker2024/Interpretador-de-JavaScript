@@ -6,20 +6,28 @@
 struct stringdin{
 	char letra;
 	struct stringdin *prox;
-};typedef strut stringdin StrDin;
+};typedef struct stringdin StrDin;
 
-//implementar juntaString
-void juntaString(StrDin *str, char string, Linha *inicio){
+//função pra juntar stringdinamica em uma normal
+void juntaString(StrDin **str, Linha *inicio){
+	char string[50];
+	int pos=0;
+	string[0]='\0';
 	Linha *linha;
+	while(*str!=NULL){
+		string[pos++]=(*str)->letra;
+		*str=(*str)->prox;
+	}
 	linha = buscaLinha(inicio);
 	adicionarToken(linha,string);
+	//implementar
+	reiniciaString(**str);
 }
 
 void insereCaracter(StrDin **str, char c, Linha *inicio){
-	char stringJunta[50];
-	//checagem de casos
+	//checagem de casos - melhor usar switch
 	if(c=="."){
-		juntaString(*str,stringJunta,*inicio);
+		juntaString(&str,*inicio);
 	}
 	StrDin *aux;
 	StrDin *nova = (StrDin*)malloc(sizeof(StrDin));
