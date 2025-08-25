@@ -10,11 +10,13 @@ void leArq(){
 	FILE *arq = fopen("exemplo.js","r");
 	char caracter;
 	fscanf(arq,"%c",&caracter);
+	adicionarLinha(&inicio);
 	while(!feof(arq)){
-		insereCaracter(*str, caracter);
-		
-		
-		
+		if(caracter=="\n"){
+			adicionarLinha(&inicio);	
+		}else{
+			insereCaracter(&str, caracter, *inicio);
+		}
 		fscanf(arq,"%c",&caracter);
 	}
 }

@@ -38,6 +38,14 @@ void adicionarLinha(Linha **inicio){
 	}
 }
 
+//busca a ultima linha adicionada
+Linha *buscaLinha(Linha *inicio){
+	Linha *aux=inicio;
+	while(aux->prox!=NULL)
+		aux=aux->prox;
+	return aux;
+}
+
 void adicionarToken(Linha **Linha, char token[]){
 	Tokens *novo, *aux;
 	NovoToken(&novo,token);

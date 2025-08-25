@@ -1,20 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "Trabalho.h"
+
 struct stringdin{
 	char letra;
 	struct stringdin *prox;
 };typedef strut stringdin StrDin;
 
-void insereCaracter(StrDin **str, char c){
+//implementar juntaString
+void juntaString(StrDin *str, char string, Linha *inicio){
+	Linha *linha;
+	linha = buscaLinha(inicio);
+	adicionarToken(linha,string);
+}
+
+void insereCaracter(StrDin **str, char c, Linha *inicio){
+	char stringJunta[50];
+	//checagem de casos
+	if(c=="."){
+		juntaString(*str,stringJunta,*inicio);
+	}
 	StrDin *aux;
 	StrDin *nova = (StrDin*)malloc(sizeof(StrDin));
 	nova->letra=c;
 	nova->prox=NULL;
-	if(c=="."){
-		char string[50]=juntaString(str);
-		adicionarToken(Linha,string);
-	}
 	if(*str==NULL)
 		*str=nova;
 	else{
@@ -24,3 +34,7 @@ void insereCaracter(StrDin **str, char c){
 		aux->prox=nome;
 	}
 }
+
+
+
+
