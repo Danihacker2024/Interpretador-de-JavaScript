@@ -43,14 +43,16 @@ void novaLetra(char c, StrDin **nova){
 
 void insereCaracter(StrDin **str, char c, Linha *inicio){
 	StrDin *aux,*nova;
-	novaLetra(c,&nova);
-	if(*str==NULL)
-		*str=nova;
-	else{
-		aux=*str;
-		while(aux->prox!=NULL)
-			aux=aux->prox;
-		aux->prox=nova;
+	if(c!=' '){
+		novaLetra(c,&nova);
+		if(*str==NULL)
+			*str=nova;
+		else{
+			aux=*str;
+			while(aux->prox!=NULL)
+				aux=aux->prox;
+			aux->prox=nova;
+		}
 	}
 }
 
