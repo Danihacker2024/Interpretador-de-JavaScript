@@ -18,19 +18,21 @@ void reiniciaString(StrDin **str){
 }
 //função pra juntar stringdinamica em uma normal
 void juntaString(StrDin **str, Linha *inicio){
-	char string[100];
-	int pos=0;
-	string[0]='\0';
-	Linha *linha;
-	while(*str!=NULL){
-		string[pos++]=(*str)->letra;
-		*str=(*str)->prox;
+	if(*str!=NULL){
+		char string[100];
+		int pos=0;
+		string[0]='\0';
+		Linha *linha;
+		while(*str!=NULL){
+			string[pos++]=(*str)->letra;
+			*str=(*str)->prox;
+		}
+		string[pos] = '\0';
+		linha = buscaLinha(inicio);
+		adicionarToken(linha,string);
+		//implementar
+		reiniciaString(str);
 	}
-	string[pos] = '\0';
-	linha = buscaLinha(inicio);
-	adicionarToken(linha,string);
-	//implementar
-	reiniciaString(str);
 }
 
 void novaLetra(char c, StrDin **nova){
