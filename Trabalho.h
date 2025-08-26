@@ -1,40 +1,45 @@
+#ifndef TRABALHO_H   
+#define TRABALHO_H
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct tokens{
 	char token[100];
 	struct tokens *prox;
-};typedef struct tokens Tokens
+}; typedef struct tokens Tokens;
 
 struct linha{
 	struct linha *ant,*prox;
 	Tokens *pTokens;
 }; typedef struct linha Linha;
 
-void NovaLinha(Linha **Linha){
-	*Linha=(Linha*)malloc(sizeof(Linha));
-	*Linha->pTokens=NULL;
-	*Linha->ant=NULL;
-	*Linha->prox=NULL;
+void NovaLinha(Linha **linha){
+	*linha=(Linha*)malloc(sizeof(Linha));
+	(*linha)->pTokens=NULL;
+	(*linha)->ant=NULL;
+	(*linha)->prox=NULL;
 }
 
 void NovoToken(Tokens **novo, char token[]){
-	*novo=(Tokens*)malloc(sizeof(Tokens))
-	*novo->prox=NULL;
-	strcpy(*novo->token,token);
+	*novo=(Tokens*)malloc(sizeof(Tokens));
+	(*novo)->prox=NULL;
+	strcpy((*novo)->token,token);
 }
 
 void adicionarLinha(Linha **inicio){
 	Linha *nova;
 	Linha *aux;
 	NovaLinha(&nova);
-	if(*inicio=NULL)
+	if(*inicio==NULL)
 		*inicio=nova;
 	else{
 		aux=*inicio;
 		while(aux->prox!=NULL)
 			aux=aux->prox;
 		aux->prox=nova;
+		nova->ant = aux;
 	}
 }
 
@@ -46,15 +51,38 @@ Linha *buscaLinha(Linha *inicio){
 	return aux;
 }
 
-void adicionarToken(Linha **Linha, char token[]){
+void adicionarToken(Linha *linha, char token[]){
 	Tokens *novo, *aux;
 	NovoToken(&novo,token);
-	if((*Linha)->pTokens=NULL)
-		(*Linha)->pTokens=novo;
+	if(linha->pTokens==NULL)
+		linha->pTokens=novo;
 	else{
-		aux=(*Linha)->pTokens;
+		aux=linha->pTokens;
 		while(aux->prox!=NULL)
 			aux=aux->prox;
 		aux->prox=novo;
 	}
 }
+
+void imprimeTokens(Linha *linha) {
+    Tokens *aux = linha->pTokens;
+    while (aux != NULL) {
+        printf("[%s] ", aux->token);
+        aux = aux->prox;
+    }
+    printf("\n");
+}
+
+// percorre todas as linhas e chama imprimeTokens
+void imprimeLinhas(Linha *inicio) {
+    Linha *aux = inicio;
+    int numLinha = 1;
+    while (aux != NULL) {
+        printf("Linha %d: ", numLinha);
+        imprimeTokens(aux);
+        aux = aux->prox;
+        numLinha++;
+    }
+}
+
+#endif

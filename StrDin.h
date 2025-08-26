@@ -8,9 +8,17 @@ struct stringdin{
 	struct stringdin *prox;
 };typedef struct stringdin StrDin;
 
+void reiniciaString(StrDin **str){
+	StrDin *aux;
+	while(*str!=NULL){
+		aux=*str;
+		*str=aux->prox;
+		free(aux);
+	}
+}
 //função pra juntar stringdinamica em uma normal
 void juntaString(StrDin **str, Linha *inicio){
-	char string[50];
+	char string[100];
 	int pos=0;
 	string[0]='\0';
 	Linha *linha;
@@ -18,28 +26,29 @@ void juntaString(StrDin **str, Linha *inicio){
 		string[pos++]=(*str)->letra;
 		*str=(*str)->prox;
 	}
+	string[pos] = '\0';
 	linha = buscaLinha(inicio);
 	adicionarToken(linha,string);
 	//implementar
-	reiniciaString(**str);
+	reiniciaString(str);
+}
+
+void novaLetra(char c, StrDin **nova){
+	*nova = (StrDin*)malloc(sizeof(StrDin));
+	(*nova)->letra=c;
+	(*nova)->prox=NULL;
 }
 
 void insereCaracter(StrDin **str, char c, Linha *inicio){
-	//checagem de casos - melhor usar switch
-	if(c=="."){
-		juntaString(&str,*inicio);
-	}
-	StrDin *aux;
-	StrDin *nova = (StrDin*)malloc(sizeof(StrDin));
-	nova->letra=c;
-	nova->prox=NULL;
+	StrDin *aux,*nova;
+	novaLetra(c,&nova);
 	if(*str==NULL)
 		*str=nova;
 	else{
 		aux=*str;
 		while(aux->prox!=NULL)
 			aux=aux->prox;
-		aux->prox=nome;
+		aux->prox=nova;
 	}
 }
 
