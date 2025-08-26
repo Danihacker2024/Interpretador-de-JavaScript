@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Trabalho.h"
 #include "StrDin.h"
+#include "Funcoes.h"
 //ainda tem [] em branco com nada dentro resolver depois 
 Linha *leArq(){
 	Linha *inicio=NULL;
@@ -85,15 +87,32 @@ Linha *leArq(){
 	return inicio;
 }
 
+void ExecutaSequencial(Linha *linha){
+	Tokens *aux;
+	while(linha!=NULL){
+		aux = linha->pTokens;
+		while(aux!=NULL){
+			if(strcmp(aux->token,"console.log")==0){
+				consoleLog(&aux);
+			}
+			aux=aux->prox;	
+		}
+		linha=linha->prox;
+	}
+}
+
 
 int main(void){
 	Linha *codigo = leArq();
-
+	ExecutaSequencial(codigo);
+	
+	
+	/*
     if (codigo != NULL) {
         printf("Tokens lidos do arquivo:\n");
         imprimeLinhas(codigo);
     } else {
         printf("Nenhum token lido.\n");
-    }
+    }*/
 
 }
