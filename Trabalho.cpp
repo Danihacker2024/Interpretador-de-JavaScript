@@ -73,6 +73,7 @@ Linha *leArq(){
 			case '{':
 			case '}':
 			case '"':
+			case 39:
 				juntaString(&str,inicio);
 				insereCaracter(&str,caracter,inicio);
 				juntaString(&str,inicio);
