@@ -52,9 +52,16 @@ void Menu() {
     textbackground(0);
     textcolor(10);
     textbackground(0);
-    gotoxy(3, 20);
-    printf("Para iniciar");
-    gotoxy(3,21);printf("pressione [ENTER]: ");
+    gotoxy(3,17);
+    printf("[F7] Abrir Arquivo");
+    gotoxy(3,18);
+    printf("[F8] Executar programa");
+    gotoxy(3,19);
+    printf("[F9] Mostrar conteudo");
+    gotoxy(3,20);
+    printf("da Memoria RAM");
+    gotoxy(3,21);
+    printf("[F10] Mostrar tela");
 }
 
 
@@ -75,11 +82,4 @@ void exibirParticipantes(void){
     Sleep(2000);
 }
 
-char exibirMenu() {
-    gotoxy(27, 7);
-    printf("=== Interpretador de JavaScript ===");
-    gotoxy(23, 11);
-    printf("Digite sua [A] para executar o programa: ");
-    return toupper(getch());
-}
 //fim da interface

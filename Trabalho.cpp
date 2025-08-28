@@ -10,82 +10,94 @@
 Linha *leArq(){
 	Linha *inicio=NULL;
 	StrDin *str=NULL;
-	FILE *arq = fopen("exemplo.js","r");
+	char arquivo[50];
 	char caracter;
-	fscanf(arq,"%c",&caracter);
-	adicionarLinha(&inicio);
-	while(!feof(arq)){
-		switch(caracter){
-			case '*':
-				juntaString(&str,inicio);
-				insereCaracter(&str,caracter,inicio);
-				fscanf(arq,"%c",&caracter);
-				//se for * é elevado
-				if(caracter=='*'){
-					insereCaracter(&str,caracter,inicio);
-					juntaString(&str,inicio);
-				//senão é um * normal
-				}else{
-					juntaString(&str,inicio);
-					insereCaracter(&str,caracter,inicio);
-				}
-				break;
-			case '!':
-			case '>':
-			case '<':
-			case '=':
-				juntaString(&str,inicio);
-				insereCaracter(&str,caracter,inicio);
-				fscanf(arq,"%c",&caracter);
-				//se for igual é comparação
-				if(caracter=='='){
-					insereCaracter(&str,caracter,inicio);
-					juntaString(&str,inicio);
-				//senão é somente um caracter
-				}else{
-					juntaString(&str,inicio);
-					insereCaracter(&str,caracter,inicio);
-				}
-				break;
-			case '|':
-			case '&':
-				juntaString(&str,inicio);
-				insereCaracter(&str,caracter,inicio);
-				fscanf(arq,"%c",&caracter);
-				insereCaracter(&str,caracter,inicio);
-				juntaString(&str,inicio);
-				break;
-			case '\n':
-				adicionarLinha(&inicio);
-				break;
-			case ',':
-			case ';':
-			case ' ':
-				juntaString(&str,inicio);
-				break;
-			case '+':
-			case '-':
-			case '/':
-			case '%':
-			case '(':
-			case ')':
-			case '[':
-			case ']':
-			case '{':
-			case '}':
-			case '"':
-			case 39:
-				juntaString(&str,inicio);
-				insereCaracter(&str,caracter,inicio);
-				juntaString(&str,inicio);
-				break;
-			default:
-				insereCaracter(&str, caracter, inicio);
-				break;
-		}	
+	gotoxy(28,6);
+	printf("Digite o nome do arquivo ou o caminho absoluto:");
+	gotoxy(28,8);
+	gets(arquivo);
+	FILE *arq = fopen(arquivo,"r");
+	if (arq != NULL) {
 		fscanf(arq,"%c",&caracter);
+		adicionarLinha(&inicio);
+		while(!feof(arq)){
+			switch(caracter){
+				case '*':
+					juntaString(&str,inicio);
+					insereCaracter(&str,caracter,inicio);
+					fscanf(arq,"%c",&caracter);
+					//se for * é elevado
+					if(caracter=='*'){
+						insereCaracter(&str,caracter,inicio);
+						juntaString(&str,inicio);
+					//senão é um * normal
+					}else{
+						juntaString(&str,inicio);
+						insereCaracter(&str,caracter,inicio);
+					}
+					break;
+				case '!':
+				case '>':
+				case '<':
+				case '=':
+					juntaString(&str,inicio);
+					insereCaracter(&str,caracter,inicio);
+					fscanf(arq,"%c",&caracter);
+					//se for igual é comparação
+					if(caracter=='='){
+						insereCaracter(&str,caracter,inicio);
+						juntaString(&str,inicio);
+					//senão é somente um caracter
+					}else{
+						juntaString(&str,inicio);
+						insereCaracter(&str,caracter,inicio);
+					}
+					break;
+				case '|':
+				case '&':
+					juntaString(&str,inicio);
+					insereCaracter(&str,caracter,inicio);
+					fscanf(arq,"%c",&caracter);
+					insereCaracter(&str,caracter,inicio);
+					juntaString(&str,inicio);
+					break;
+				case '\n':
+					adicionarLinha(&inicio);
+					break;
+				case ',':
+				case ';':
+				case ' ':
+					juntaString(&str,inicio);
+					break;
+				case '+':
+				case '-':
+				case '/':
+				case '%':
+				case '(':
+				case ')':
+				case '[':
+				case ']':
+				case '{':
+				case '}':
+				case '"':
+				case 39:
+					juntaString(&str,inicio);
+					insereCaracter(&str,caracter,inicio);
+					juntaString(&str,inicio);
+					break;
+				default:
+					insereCaracter(&str, caracter, inicio);
+					break;
+			}	
+			fscanf(arq,"%c",&caracter);
+		}
+		fclose(arq);
 	}
-	fclose(arq);
+	else if(arq==NULL){
+		gotoxy(28, 10);
+        printf("Erro: nao foi possivel abrir o arquivo!");
+	}
+	
 	return inicio;
 }
 
@@ -106,34 +118,61 @@ void ExecutaSequencial(Linha *linha){
 
 
 int main(void){
-    Linha *codigo = leArq();
+	Linha *codigo;
     exibirParticipantes();
-
     char opcao;
+    //vai precisar mudar a logica
     do {
         system("cls");
         FormPrincipal();   
         Menu();    
-        if (codigo != NULL) {
-            exibirTokens(codigo); 
-        } else {
-            gotoxy(50, 19);
-            printf("Nenhum token lido.");
-        }
         gotoxy(21,21);
-		opcao = toupper(getch());
-		
-        switch(opcao){
-            case 13: // ENTER
-                ExecutaSequencial(codigo);
-                break;
-            case 27: // ESC
-                break;
-            default:
-                gotoxy(10, 13);
-                printf("Opcao invalida...");
-                getch();
-                break;
+		opcao = getch();
+		if (opcao == 0 || opcao == 224) {
+            // segunda leitura -> tecla especial
+            opcao = getch();
+            //não é possivel fazer as outras coisas se ele não ler o arquivo primeiro
+	        switch(opcao){
+	        	case 65://F7 Abrir arquivo fonte
+	        		codigo = leArq();
+			        if (codigo != NULL) {
+			        	system("cls");
+        				FormPrincipal();   
+        				Menu();
+			            exibirTokens(codigo);
+						gotoxy(21,21);
+						opcao = getch();
+						if (opcao == 0 || opcao == 224) {
+            			// segunda leitura -> tecla especial
+            				opcao = getch();
+	        				switch(opcao){
+	        					case 65:
+									break;
+								case 66://F8 Executar programa 
+					                ExecutaSequencial(codigo);
+					                break;
+					            case 67://F9 Mostrar conteudo da Memoria RAM 
+					                break;
+					            case 68://F10 Mostrar tela (resultados do console.log)
+					            	break;
+					        	default:
+					                gotoxy(50, 10);
+					                printf("Opcao invalida...");
+					                getch();
+					                break;
+	        				}
+						}
+			        } else {
+			            gotoxy(50, 19);
+			            printf("Nenhum token lido.");
+			        }
+	        		break;
+	            default:
+	                gotoxy(50, 10);
+	                printf("Escolha um arquivo primeiro");
+	                getch();
+	                break;
+            }
         }
     } while(opcao != 27);
 
