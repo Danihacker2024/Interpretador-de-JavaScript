@@ -134,38 +134,43 @@ int main(void){
             //não é possivel fazer as outras coisas se ele não ler o arquivo primeiro
 	        switch(opcao){
 	        	case 65://F7 Abrir arquivo fonte
-	        		codigo = leArq();
-			        if (codigo != NULL) {
-			        	system("cls");
-        				FormPrincipal();   
-        				Menu();
-			            exibirTokens(codigo);
-						gotoxy(21,21);
-						opcao = getch();
-						if (opcao == 0 || opcao == 224) {
-            			// segunda leitura -> tecla especial
-            				opcao = getch();
-	        				switch(opcao){
-	        					case 65:
-									break;
-								case 66://F8 Executar programa 
-					                ExecutaSequencial(codigo);
-					                break;
-					            case 67://F9 Mostrar conteudo da Memoria RAM 
-					                break;
-					            case 68://F10 Mostrar tela (resultados do console.log)
-					            	break;
-					        	default:
-					                gotoxy(50, 10);
-					                printf("Opcao invalida...");
-					                getch();
-					                break;
-	        				}
-						}
-			        } else {
-			            gotoxy(50, 19);
-			            printf("Nenhum token lido.");
-			        }
+	        		system("cls");
+	        		FormPrincipal();   
+	        		Menu();
+	        		do{
+		        		codigo = leArq();
+				        if (codigo != NULL) {
+				        	system("cls");
+	        				FormPrincipal();   
+	        				Menu();
+				            exibirTokens(codigo);
+							gotoxy(21,21);
+							opcao = getch();
+							if (opcao == 0 || opcao == 224) {
+	            			// segunda leitura -> tecla especial
+	            				opcao = getch();
+		        				switch(opcao){
+		        					case 65:
+										break;
+									case 66://F8 Executar programa 
+						                ExecutaSequencial(codigo);
+						                break;
+						            case 67://F9 Mostrar conteudo da Memoria RAM 
+						                break;
+						            case 68://F10 Mostrar tela (resultados do console.log)
+						            	break;
+						        	default:
+						                gotoxy(50, 10);
+						                printf("Opcao invalida...");
+						                getch();
+						                break;
+		        				}
+							}
+				        } else {
+				            gotoxy(50, 19);
+				            printf("Nenhum token lido.");
+				        }
+				    }while(opcao!=65 && opcao!=27);
 	        		break;
 	            default:
 	                gotoxy(50, 10);
