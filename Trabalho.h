@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
+#include <conio.h>
+#include <time.h>
+#include <conio2.h>
 
 struct tokens{
 	char token[100];
@@ -64,24 +68,29 @@ void adicionarToken(Linha *linha, char token[]){
 	}
 }
 
-void imprimeTokens(Linha *linha) {
-    Tokens *aux = linha->pTokens;
-    while (aux != NULL) {
-        printf("[%s] ", aux->token);
-        aux = aux->prox;
-    }
-    printf("\n");
-}
-
-// percorre todas as linhas e chama imprimeTokens
-void imprimeLinhas(Linha *inicio) {
+void exibirTokens(Linha *inicio) {
     Linha *aux = inicio;
-    int numLinha = 1;
-    while (aux != NULL) {
-        printf("Linha %d: ", numLinha);
-        imprimeTokens(aux);
+    int y = 6;  
+    int x   = 28;
+	int linha=1; 
+    Tokens *comando;
+
+    textcolor(15);
+    textbackground(0);
+
+    while (aux != NULL && y < 29) {
+        gotoxy(x, y);
+
+        comando = aux->pTokens;
+        printf("Linha %d: ", linha);
+
+        while (comando != NULL) {
+            printf("[%s] ", comando->token);
+            comando = comando->prox;
+        }
+		linha++;
+        y++;
         aux = aux->prox;
-        numLinha++;
     }
 }
 

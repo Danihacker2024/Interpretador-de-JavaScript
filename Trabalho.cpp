@@ -5,7 +5,8 @@
 #include "Trabalho.h"
 #include "StrDin.h"
 #include "Funcoes.h"
-//ainda tem [] em branco com nada dentro resolver depois 
+#include "Interface.h"
+
 Linha *leArq(){
 	Linha *inicio=NULL;
 	StrDin *str=NULL;
@@ -93,6 +94,7 @@ void ExecutaSequencial(Linha *linha){
 	while(linha!=NULL){
 		aux = linha->pTokens;
 		while(aux!=NULL){
+			//chamadas da função aqui
 			if(strcmp(aux->token,"console.log")==0){
 				consoleLog(&aux);
 			}
@@ -104,16 +106,37 @@ void ExecutaSequencial(Linha *linha){
 
 
 int main(void){
-	Linha *codigo = leArq();
-	ExecutaSequencial(codigo);
-	
-	
-	/*
-    if (codigo != NULL) {
-        printf("Tokens lidos do arquivo:\n");
-        imprimeLinhas(codigo);
-    } else {
-        printf("Nenhum token lido.\n");
-    }*/
+    Linha *codigo = leArq();
+    exibirParticipantes();
 
+    char opcao;
+    do {
+        system("cls");
+        FormPrincipal();   
+        Menu();    
+        if (codigo != NULL) {
+            exibirTokens(codigo); 
+        } else {
+            gotoxy(50, 19);
+            printf("Nenhum token lido.");
+        }
+        gotoxy(21,21);
+		opcao = toupper(getch());
+		
+        switch(opcao){
+            case 13: // ENTER
+                ExecutaSequencial(codigo);
+                break;
+            case 27: // ESC
+                break;
+            default:
+                gotoxy(10, 13);
+                printf("Opcao invalida...");
+                getch();
+                break;
+        }
+    } while(opcao != 27);
+
+    return 0;
 }
+
