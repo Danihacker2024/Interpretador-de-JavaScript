@@ -106,21 +106,62 @@ int converteInt(char str[]){
 	return num;
 }
 
+float converteFloat(char str[]) {
+    float num = 0;
+    float divisor = 1;
+    int i = 0;
+    int parteDecimal = 0;
+
+    while (str[i] != '\0') {
+        if (str[i] == '.') {
+            parteDecimal = 1;
+        } else {
+            num = num * 10 + (str[i] - '0');
+            if (parteDecimal) {
+                divisor *= 10.0;
+            }
+        }
+        i++;
+    }
+    return num / divisor;
+}
+
 
 var declaracao(Tokens **aux){
 	var variavel;
 	*aux=(*aux)->prox;
-	strcpy(variavel.nome,(*aux)->token);
-	*aux=(*aux)->prox;
-	if((*aux)->token[0]=='='){
+	if(*aux!=NULL){
+		strcpy(variavel.nome,(*aux)->token);
 		*aux=(*aux)->prox;
-		//tem que verificar se é negativo
-		if((*aux)->token[0]=='-'){
-			*aux=(*aux)->prox;
-			if(Inteiro((*aux)->token))
-				variavel.valorInt=-converteInt((*aux)->token);
-			else if(Float((*aux)->token))
-				//implementar converte pra float
+		if(*aux!=NULL){
+			if((*aux)->token[0]=='='){
+				*aux=(*aux)->prox;
+				//tem que verificar se é negativo
+				if(*aux!=NULL){
+					if((*aux)->token[0]=='-'){
+						*aux=(*aux)->prox;
+						if(*aux!=NULL){
+							if(Inteiro((*aux)->token))
+								variavel.valorInt=-converteInt((*aux)->token);
+							else if(Float((*aux)->token))
+								variavel.valorFloat=-converteFloat((*aux)->token);
+							else{
+								strcpy(variavel.valorString,"-");
+								strcat(variavel.valorString,(*aux)->token);
+							}
+						}
+					}else{
+						if(Inteiro((*aux)->token))
+							variavel.valorInt=converteInt((*aux)->token);
+						else if(Float((*aux)->token))
+							variavel.valorFloat=converteFloat((*aux)->token);
+						else if((*aux)->token[1]=='\0')
+							variavel.valorChar=(*aux)->token[0];
+						else 
+							strcpy(variavel.valorString,(*aux)->token);		
+					}
+				}
+			}
 		}
 	}
 	return variavel;
@@ -130,18 +171,25 @@ var declaracao(Tokens **aux){
 
 
 
-void consoleLog(Tokens **aux){
+void consoleLog(Tokens **aux,int y){
 	//[console.log]->[(]->["]->[conteudo]
 	*aux=(*aux)->prox->prox->prox;
-	int x=28,y=6;
-	while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
+	int x=28;
+	if(*aux!=NULL){
+		while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
+			gotoxy(x,y);
+			printf("%s ",(*aux)->token);
+			*aux=(*aux)->prox;
+		}
+	}else{
 		gotoxy(x,y);
-		printf("%s ",(*aux)->token);
-		*aux=(*aux)->prox;
-		y++;
+		printf("Erro no console.log");
 	}
+	getch();
+	
 	//["]->[)] || ["]->[,]
-	*aux=(*aux)->prox;/*
+	//*aux=(*aux)->prox;
+	/*
 	if((*aux)->token[0]==',' || (*aux)->token[0]=='+'){
 		*aux=(*aux)->prox;
 		calculaDoisNumeros(*aux);

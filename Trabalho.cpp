@@ -103,6 +103,7 @@ Linha *leArq(){
 
 void ExecutaSequencial(Linha *linha){
 	Tokens *aux;
+	int y=6;
 	while(linha!=NULL){
 		aux = linha->pTokens;
 		while(aux!=NULL){
@@ -111,7 +112,8 @@ void ExecutaSequencial(Linha *linha){
 				system("cls");
 				FormPrincipal();   
 				Menu();
-				consoleLog(&aux);
+				consoleLog(&aux,y);
+				y++;
 			}
 			else if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
 				var variavel = declaracao(&aux);
