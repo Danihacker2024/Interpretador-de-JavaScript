@@ -108,7 +108,13 @@ void ExecutaSequencial(Linha *linha){
 		while(aux!=NULL){
 			//chamadas da função aqui
 			if(strcmp(aux->token,"console.log")==0){
+				system("cls");
+				FormPrincipal();   
+				Menu();
 				consoleLog(&aux);
+			}
+			else if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
+				var variavel = declaracao(&aux);
 			}
 			aux=aux->prox;	
 		}

@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "Trabalho.h"
+
+struct variavel{
+	char nome[50];
+	int valorInt;
+	float valorFloat;
+	char valorChar;
+	char valorString[100];
+};typedef struct variavel var;
+
 /*
 float stringToFloat(char str[]) {
     float resultado = 0.0f;
@@ -50,12 +59,86 @@ void calculaDoisNumeros(Tokens **aux){
 	}
 }
 */
+
+int Digito(char c) {
+	if (c >= '0' && c <= '9')
+    	return 1;
+    return 0;
+}
+
+
+int Inteiro(char str[]) {
+	int flag=1;
+	int i=0;
+    while(str[i] != '\0') {
+        if (!Digito(str[i])) {
+            flag=0;
+        }
+        i++;
+    }
+    return flag; 
+}
+
+int Float(char str[]) {
+    int ponto = 0; 
+	int flag=1;
+	int i=0;
+    while(str[i] != '\0') {
+        if (str[i] == '.') {
+        	if(ponto==1)
+        		flag=0;
+            ponto=1;
+        } else if (!Digito(str[i])) {
+            flag=0; 
+        }
+        i++;
+    }
+    return flag; 
+}
+
+int converteInt(char str[]){
+	int num=0;
+	int i=0;
+	while(str[i] != '\0'){
+		num=num*10+(str[i] - '0');
+		i++;
+	}
+	return num;
+}
+
+
+var declaracao(Tokens **aux){
+	var variavel;
+	*aux=(*aux)->prox;
+	strcpy(variavel.nome,(*aux)->token);
+	*aux=(*aux)->prox;
+	if((*aux)->token[0]=='='){
+		*aux=(*aux)->prox;
+		//tem que verificar se é negativo
+		if((*aux)->token[0]=='-'){
+			*aux=(*aux)->prox;
+			if(Inteiro((*aux)->token))
+				variavel.valorInt=-converteInt((*aux)->token);
+			else if(Float((*aux)->token))
+				//implementar converte pra float
+		}
+	}
+	return variavel;
+}
+
+
+
+
+
 void consoleLog(Tokens **aux){
 	//[console.log]->[(]->["]->[conteudo]
 	*aux=(*aux)->prox->prox->prox;
+	int x=28,y=6;
 	while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
+		gotoxy(x,y);
 		printf("%s ",(*aux)->token);
 		*aux=(*aux)->prox;
+		y++;
 	}
 	//["]->[)] || ["]->[,]
 	*aux=(*aux)->prox;/*
