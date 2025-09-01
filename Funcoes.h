@@ -6,7 +6,6 @@ struct variavel{
 	char nome[50];
 	int valorInt;
 	float valorFloat;
-	char valorChar;
 	char valorString[100];
 };typedef struct variavel var;
 
@@ -129,6 +128,8 @@ float converteFloat(char str[]) {
 
 var declaracao(Tokens **aux){
 	var variavel;
+	strcpy(variavel.valorString, "");
+	int flag=1;
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
 		strcpy(variavel.nome,(*aux)->token);
@@ -145,20 +146,24 @@ var declaracao(Tokens **aux){
 								variavel.valorInt=-converteInt((*aux)->token);
 							else if(Float((*aux)->token))
 								variavel.valorFloat=-converteFloat((*aux)->token);
-							else{
-								strcpy(variavel.valorString,"-");
-								strcat(variavel.valorString,(*aux)->token);
-							}
 						}
 					}else{
+						
 						if(Inteiro((*aux)->token))
 							variavel.valorInt=converteInt((*aux)->token);
 						else if(Float((*aux)->token))
 							variavel.valorFloat=converteFloat((*aux)->token);
-						else if((*aux)->token[1]=='\0')
-							variavel.valorChar=(*aux)->token[0];
-						else 
-							strcpy(variavel.valorString,(*aux)->token);		
+						else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
+							*aux=(*aux)->prox;
+							while((*aux)->token[0]!='"' && flag){
+								if(*aux!=NULL){
+									strcat(variavel.valorString,(*aux)->token);
+									strcat(variavel.valorString," ");
+									*aux=(*aux)->prox;
+								} else
+									flag=0;
+							}
+						}	
 					}
 				}
 			}

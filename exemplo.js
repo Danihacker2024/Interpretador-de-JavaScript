@@ -1,3 +1,2 @@
-let a = 5;
-
-console.log("Console log funcionou");
+let a = "Isso e uma frase";
+let b = "Tambem";
