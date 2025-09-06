@@ -129,10 +129,10 @@ float converteFloat(char str[]) {
 }
 
 
-var declaracao(Tokens **aux){
+var declaracao(Tokens **aux,int *flag){
 	var variavel;
 	strcpy(variavel.valorString, "");
-	int flag=1;
+	strcpy(variavel.nome, "");
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
 		strcpy(variavel.nome,(*aux)->token);
@@ -163,9 +163,9 @@ var declaracao(Tokens **aux){
 								variavel.valorInt=NULL;
 								strcpy(variavel.valorString,NULL);
 							}
-						}
+						}else
+							flag=1;
 					}else{
-						
 						if(Inteiro((*aux)->token)){
 							variavel.valorInt=converteInt((*aux)->token);
 							variavel.valorFloat=NULL;
@@ -178,11 +178,12 @@ var declaracao(Tokens **aux){
 						}
 						else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
 							*aux=(*aux)->prox;
-							while((*aux)->token[0]!='"' && flag){
+							while((*aux)->token[0]!='"' && flag && (*aux)->token[0]!=39){
 								if(*aux!=NULL){
 									strcat(variavel.valorString,(*aux)->token);
-									strcat(variavel.valorString," ");
 									*aux=(*aux)->prox;
+									if((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL)
+										strcat(variavel.valorString," ");
 								} else
 									flag=0;
 							}
@@ -190,11 +191,32 @@ var declaracao(Tokens **aux){
 							variavel.valorFloat=NULL;
 						}	
 					}
-				}
-			}
+				}else
+					flag=1;
+			}else
+				flag=1;
 		}
-	}
+	}else 
+		flag=1;
 	return variavel;
+}
+
+
+
+void If(Pilha **p, Tokens **aux, int *flag){
+	*aux=(*aux)->prox;
+	//NULL representa o fim da linha
+	if(*aux!=NULL){
+		if(strcmp((*aux)->token,"(")==0){
+			if(strcmp((*aux)->token,"!")==0){
+				
+			}else{
+				buscavariavel(&p);
+			}
+		}else
+			flag=1;	
+	}else
+		flag=1;	
 }
 
 

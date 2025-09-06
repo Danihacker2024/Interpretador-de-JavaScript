@@ -103,11 +103,12 @@ Linha *leArq(){
 }
 
 void ExecutaSequencial(Linha *linha, Pilha **p){
+	flag=0;
 	Tokens *aux;
 	int y=6;
-	while(linha!=NULL){
+	while(linha!=NULL && !flag){
 		aux = linha->pTokens;
-		while(aux!=NULL){
+		while(aux!=NULL && !flag){
 			//chamadas da fun��o aqui
 			/*
 			if(strcmp(aux->token,"console.log")==0){
@@ -118,8 +119,9 @@ void ExecutaSequencial(Linha *linha, Pilha **p){
 				y++;
 			}*/
 			if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
-				var variavel = declaracao(&aux);
-				push(&p,variavel);
+				var variavel = declaracao(&aux,&flag);
+				if(!flag)
+					push(&p,variavel);
 				//system("cls");
 				//FormPrincipal();   
 				//Menu();
@@ -128,11 +130,19 @@ void ExecutaSequencial(Linha *linha, Pilha **p){
 				printf("%s = ",variavel.nome);
 				printf("%s",variavel.valorString);
 				y++;*/	
+			} else if(strcmp(aux->token,"if")==0){
+				If(&p,&aux,&flag);
+			} else if(strcmp(aux->token,"if")==0){
+				Else(&p,&aux,&flag);
 			}
 			aux=aux->prox;	
 		}
 		linha=linha->prox;
 	}
+	if(flag){
+		gotoxy(28,6);
+		printf("Erro na execucao do codigo");
+	}		
 }
 
 void MemoriaRAM(Pilha *p){
