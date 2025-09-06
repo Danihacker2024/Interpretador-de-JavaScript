@@ -182,7 +182,7 @@ var declaracao(Tokens **aux,int *flag){
 								if(*aux!=NULL){
 									strcat(variavel.valorString,(*aux)->token);
 									*aux=(*aux)->prox;
-									if((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL)
+									if((*aux)->token[0]!=39 || (*aux)->token[0]!='"' || *aux!=NULL)
 										strcat(variavel.valorString," ");
 								} else
 									flag=0;
@@ -201,23 +201,615 @@ var declaracao(Tokens **aux,int *flag){
 	return variavel;
 }
 
-
-
-void If(Pilha **p, Tokens **aux, int *flag){
-	*aux=(*aux)->prox;
-	//NULL representa o fim da linha
-	if(*aux!=NULL){
-		if(strcmp((*aux)->token,"(")==0){
-			if(strcmp((*aux)->token,"!")==0){
-				
-			}else{
-				buscavariavel(&p);
-			}
-		}else
-			flag=1;	
-	}else
-		flag=1;	
+var buscaVariavel(Pilha **p1,Tokens **aux){
+	var x,y;
+	Pilha *p2;
+	int flag=0;
+	while(!isEmpty(*p1) && !flag){
+		pop(&p1,&x);
+		if(strcmp(x.nome,(*aux)->token)==0){
+			flag=1;
+		}
+		push(*p2,x);
+	}
+	while(!isEmpty(*p2)){
+		pop(&p2,&y);
+		push(&p1,y);
+	}
+	if(flag)
+		return x;
+	x.valorInt=-1;
+	return x;
 }
+
+int If(Pilha **p, Tokens **aux, int *flag) {
+    var var1, var2;
+    int num;
+    float numf;
+    int condicao1, condicao2;
+	char logico[5];
+    *aux = (*aux)->prox;
+    // NULL representa o fim da linha
+    if (*aux != NULL) {
+        if (strcmp((*aux)->token, "(") == 0) {
+            *aux = (*aux)->prox;
+            if (*aux != NULL) {
+                if (strcmp((*aux)->token, "!") == 0) {
+                    *aux = (*aux)->prox;
+                    if (*aux != NULL) {
+                        var1 = buscaVariavel(&p, &aux);
+                        if (var1.valorInt != -1) {
+                            *aux = (*aux)->prox;
+                            if (*aux != NULL) {
+                                if (strcmp((*aux)->token, "==") == 0) {
+                                    *aux = (*aux)->prox;
+                                    if (*aux != NULL) {
+                                        var2 = buscaVariavel(&p, &aux);
+                                        // onde parei
+                                        if (var2.valorInt != -1) {
+                                            if (var1.valorInt == !var2.valorInt) {
+                                                condicao1 = 1;
+                                            } else if (var1.valorFloat == !var2.valorFloat) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Inteiro((*aux)->token)) {
+                                            num = converteInt((*aux)->token);
+                                            if (var1.valorInt == !num) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Float((*aux)->token)) {
+                                            numf = converteFloat((*aux)->token);
+                                            if (var1.valorInt == !numf || var1.valorFloat == !numf) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else {
+                                            flag = 1;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else if (strcmp((*aux)->token, "!=") == 0) {
+                                    *aux = (*aux)->prox;
+                                    if (*aux != NULL) {
+                                        var2 = buscaVariavel(&p, &aux);
+                                        if (var2.valorInt != -1) {
+                                            if (var1.valorInt != !var2.valorInt) {
+                                                condicao1 = 1;
+                                            } else if (var1.valorFloat != !var2.valorFloat) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Inteiro((*aux)->token)) {
+                                            num = converteInt((*aux)->token);
+                                            if (var1.valorInt != !num) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Float((*aux)->token)) {
+                                            numf = converteFloat((*aux)->token);
+                                            if (var1.valorInt != !numf || var1.valorFloat != !numf) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else {
+                                            flag = 1;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else if ((*aux)->token[0] == '<') {
+                                    *aux = (*aux)->prox;
+                                    if (*aux != NULL) {
+                                        var2 = buscaVariavel(&p, &aux);
+                                        if (var2.valorInt != -1) {
+                                            if (var1.valorInt < !var2.valorInt) {
+                                                condicao1 = 1;
+                                            } else if (var1.valorFloat < !var2.valorFloat) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Inteiro((*aux)->token)) {
+                                            num = converteInt((*aux)->token);
+                                            if (var1.valorInt < !num) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Float((*aux)->token)) {
+                                            numf = converteFloat((*aux)->token);
+                                            if (var1.valorInt < !numf || var1.valorFloat < !numf) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else {
+                                            flag = 1;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else if ((*aux)->token[0] == '>') {
+                                    *aux = (*aux)->prox;
+                                    if (*aux != NULL) {
+                                        var2 = buscaVariavel(&p, &aux);
+                                        if (var2.valorInt != -1) {
+                                            if (var1.valorInt > !var2.valorInt) {
+                                                condicao1 = 1;
+                                            } else if (var1.valorFloat > !var2.valorFloat) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Inteiro((*aux)->token)) {
+                                            num = converteInt((*aux)->token);
+                                            if (var1.valorInt > !num) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Float((*aux)->token)) {
+                                            numf = converteFloat((*aux)->token);
+                                            if (var1.valorInt > !numf || var1.valorFloat > !numf) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else {
+                                            flag = 1;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else if (strcmp((*aux)->token, ">=") == 0) {
+                                    *aux = (*aux)->prox;
+                                    if (*aux != NULL) {
+                                        var2 = buscaVariavel(&p, &aux);
+                                        if (var2.valorInt != -1) {
+                                            if (var1.valorInt >= !var2.valorInt) {
+                                                condicao1 = 1;
+                                            } else if (var1.valorFloat >= !var2.valorFloat) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Inteiro((*aux)->token)) {
+                                            num = converteInt((*aux)->token);
+                                            if (var1.valorInt >= !num) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Float((*aux)->token)) {
+                                            numf = converteFloat((*aux)->token);
+                                            if (var1.valorInt >= !numf || var1.valorFloat >= !numf) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else {
+                                            flag = 1;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else if (strcmp((*aux)->token, "<=") == 0) {
+                                    *aux = (*aux)->prox;
+                                    if (*aux != NULL) {
+                                        var2 = buscaVariavel(&p, &aux);
+                                        if (var2.valorInt != -1) {
+                                            if (var1.valorInt <= !var2.valorInt) {
+                                                condicao1 = 1;
+                                            } else if (var1.valorFloat <= !var2.valorFloat) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Inteiro((*aux)->token)) {
+                                            num = converteInt((*aux)->token);
+                                            if (var1.valorInt <= !num) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else if (Float((*aux)->token)) {
+                                            numf = converteFloat((*aux)->token);
+                                            if (var1.valorInt <= !numf || var1.valorFloat <= !numf) {
+                                                condicao1 = 1;
+                                            } else {
+                                                condicao1 = 0;
+                                            }
+                                        } else {
+                                            flag = 1;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                }
+                            }
+                        } else {
+                            flag = 1;
+                        }
+                    } else {
+                        flag = 1;
+                    }
+                } else {
+                    var1 = buscaVariavel(&p, &aux);
+                    if (var1.valorInt != -1) {
+                        *aux = (*aux)->prox;
+                        if (*aux != NULL) {
+                            if (strcmp((*aux)->token, "==") == 0) {
+                                *aux = (*aux)->prox;
+                                if (*aux != NULL) {
+                                    var2 = buscaVariavel(&p, &aux);
+                                    // onde parei
+                                    if (var2.valorInt != -1) {
+                                        if (var1.valorInt == var2.valorInt) {
+                                            condicao1 = 1;
+                                        } else if (var1.valorFloat == var2.valorFloat) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Inteiro((*aux)->token)) {
+                                        num = converteInt((*aux)->token);
+                                        if (var1.valorInt == num) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Float((*aux)->token)) {
+                                        numf = converteFloat((*aux)->token);
+                                        if (var1.valorInt == numf || var1.valorFloat == numf) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else {
+                                    flag = 1;
+                                }
+                            } else if (strcmp((*aux)->token, "!=") == 0) {
+                                *aux = (*aux)->prox;
+                                if (*aux != NULL) {
+                                    var2 = buscaVariavel(&p, &aux);
+                                    if (var2.valorInt != -1) {
+                                        if (var1.valorInt != var2.valorInt) {
+                                            condicao1 = 1;
+                                        } else if (var1.valorFloat != var2.valorFloat) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Inteiro((*aux)->token)) {
+                                        num = converteInt((*aux)->token);
+                                        if (var1.valorInt != num) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Float((*aux)->token)) {
+                                        numf = converteFloat((*aux)->token);
+                                        if (var1.valorInt != numf || var1.valorFloat != numf) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else {
+                                    flag = 1;
+                                }
+                            } else if ((*aux)->token[0] == '<') {
+                                *aux = (*aux)->prox;
+                                if (*aux != NULL) {
+                                    var2 = buscaVariavel(&p, &aux);
+                                    if (var2.valorInt != -1) {
+                                        if (var1.valorInt < var2.valorInt) {
+                                            condicao1 = 1;
+                                        } else if (var1.valorFloat < var2.valorFloat) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Inteiro((*aux)->token)) {
+                                        num = converteInt((*aux)->token);
+                                        if (var1.valorInt < num) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Float((*aux)->token)) {
+                                        numf = converteFloat((*aux)->token);
+                                        if (var1.valorInt < numf || var1.valorFloat < numf) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else {
+                                    flag = 1;
+                                }
+                            } else if ((*aux)->token[0] == '>') {
+                                *aux = (*aux)->prox;
+                                if (*aux != NULL) {
+                                    var2 = buscaVariavel(&p, &aux);
+                                    if (var2.valorInt != -1) {
+                                        if (var1.valorInt > var2.valorInt) {
+                                            condicao1 = 1;
+                                        } else if (var1.valorFloat > var2.valorFloat) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Inteiro((*aux)->token)) {
+                                        num = converteInt((*aux)->token);
+                                        if (var1.valorInt > num) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Float((*aux)->token)) {
+                                        numf = converteFloat((*aux)->token);
+                                        if (var1.valorInt > numf || var1.valorFloat > numf) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else {
+                                    flag = 1;
+                                }
+                            } else if (strcmp((*aux)->token, ">=") == 0) {
+                                *aux = (*aux)->prox;
+                                if (*aux != NULL) {
+                                    var2 = buscaVariavel(&p, &aux);
+                                    if (var2.valorInt != -1) {
+                                        if (var1.valorInt >= var2.valorInt) {
+                                            condicao1 = 1;
+                                        } else if (var1.valorFloat >= var2.valorFloat) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Inteiro((*aux)->token)) {
+                                        num = converteInt((*aux)->token);
+                                        if (var1.valorInt >= num) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Float((*aux)->token)) {
+                                        numf = converteFloat((*aux)->token);
+                                        if (var1.valorInt >= numf || var1.valorFloat >= numf) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else {
+                                    flag = 1;
+                                }
+                            } else if (strcmp((*aux)->token, "<=") == 0) {
+                                *aux = (*aux)->prox;
+                                if (*aux != NULL) {
+                                    var2 = buscaVariavel(&p, &aux);
+                                    if (var2.valorInt != -1) {
+                                        if (var1.valorInt <= var2.valorInt) {
+                                            condicao1 = 1;
+                                        } else if (var1.valorFloat <= var2.valorFloat) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Inteiro((*aux)->token)) {
+                                        num = converteInt((*aux)->token);
+                                        if (var1.valorInt <= num) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else if (Float((*aux)->token)) {
+                                        numf = converteFloat((*aux)->token);
+                                        if (var1.valorInt <= numf || var1.valorFloat <= numf) {
+                                            condicao1 = 1;
+                                        } else {
+                                            condicao1 = 0;
+                                        }
+                                    } else {
+                                        flag = 1;
+                                    }
+                                } else {
+                                    flag = 1;
+                                }
+                            }
+                            //aqui começa a condição 2
+							*aux = (*aux)->prox;
+							if (*aux != NULL) {
+							    if (strcmp((*aux)->token, "&&") == 0 || strcmp((*aux)->token, "||") == 0) {
+							        strcpy(logico, (*aux)->token);  // guarda o operador lógico
+							        *aux = (*aux)->prox;
+							        if (*aux != NULL) {
+							            // ============================
+							            // TRATANDO A CONDICAO 2
+							            // ============================
+							
+							            if (strcmp((*aux)->token, "!") == 0) {
+							                *aux = (*aux)->prox;
+							                if (*aux != NULL) {
+							                    var1 = buscaVariavel(&p, &aux);
+							                    if (var1.valorInt != -1) {
+							                        *aux = (*aux)->prox;
+							                        if (*aux != NULL) {
+							                            if (strcmp((*aux)->token, "==") == 0) {
+							                                *aux = (*aux)->prox;
+							                                if (*aux != NULL) {
+							                                    var2 = buscaVariavel(&p, &aux);
+							                                    if (var2.valorInt != -1) {
+							                                        if (var1.valorInt == !var2.valorInt) {
+							                                            condicao2 = 1;
+							                                        } else if (var1.valorFloat == !var2.valorFloat) {
+							                                            condicao2 = 1;
+							                                        } else {
+							                                            condicao2 = 0;
+							                                        }
+							                                    } else if (Inteiro((*aux)->token)) {
+							                                        num = converteInt((*aux)->token);
+							                                        condicao2 = (var1.valorInt == !num);
+							                                    } else if (Float((*aux)->token)) {
+							                                        numf = converteFloat((*aux)->token);
+							                                        condicao2 = (var1.valorInt == !numf || var1.valorFloat == !numf);
+							                                    } else {
+							                                        flag = 1;
+							                                    }
+							                                } else flag = 1;
+							                            }
+							                            else if (strcmp((*aux)->token, "!=") == 0) {
+							                                *aux = (*aux)->prox;
+							                                if (*aux != NULL) {
+							                                    var2 = buscaVariavel(&p, &aux);
+							                                    if (var2.valorInt != -1) {
+							                                        if (var1.valorInt != !var2.valorInt) {
+							                                            condicao2 = 1;
+							                                        } else if (var1.valorFloat != !var2.valorFloat) {
+							                                            condicao2 = 1;
+							                                        } else {
+							                                            condicao2 = 0;
+							                                        }
+							                                    } else if (Inteiro((*aux)->token)) {
+							                                        num = converteInt((*aux)->token);
+							                                        condicao2 = (var1.valorInt != !num);
+							                                    } else if (Float((*aux)->token)) {
+							                                        numf = converteFloat((*aux)->token);
+							                                        condicao2 = (var1.valorInt != !numf || var1.valorFloat != !numf);
+							                                    } else {
+							                                        flag = 1;
+							                                    }
+							                                } else flag = 1;
+							                            }
+							                            else if ((*aux)->token[0] == '<') {
+							                                *aux = (*aux)->prox;
+							                                if (*aux != NULL) {
+							                                    var2 = buscaVariavel(&p, &aux);
+							                                    if (var2.valorInt != -1) {
+							                                        condicao2 = (var1.valorInt < !var2.valorInt || var1.valorFloat < !var2.valorFloat);
+							                                    } else if (Inteiro((*aux)->token)) {
+							                                        num = converteInt((*aux)->token);
+							                                        condicao2 = (var1.valorInt < !num);
+							                                    } else if (Float((*aux)->token)) {
+							                                        numf = converteFloat((*aux)->token);
+							                                        condicao2 = (var1.valorInt < !numf || var1.valorFloat < !numf);
+							                                    } else {
+							                                        flag = 1;
+							                                    }
+							                                } else flag = 1;
+							                            }
+							                            else if ((*aux)->token[0] == '>') {
+							                                *aux = (*aux)->prox;
+							                                if (*aux != NULL) {
+							                                    var2 = buscaVariavel(&p, &aux);
+							                                    if (var2.valorInt != -1) {
+							                                        condicao2 = (var1.valorInt > !var2.valorInt || var1.valorFloat > !var2.valorFloat);
+							                                    } else if (Inteiro((*aux)->token)) {
+							                                        num = converteInt((*aux)->token);
+							                                        condicao2 = (var1.valorInt > !num);
+							                                    } else if (Float((*aux)->token)) {
+							                                        numf = converteFloat((*aux)->token);
+							                                        condicao2 = (var1.valorInt > !numf || var1.valorFloat > !numf);
+							                                    } else {
+							                                        flag = 1;
+							                                    }
+							                                } else flag = 1;
+							                            }
+							                            else if (strcmp((*aux)->token, ">=") == 0) {
+							                                *aux = (*aux)->prox;
+							                                if (*aux != NULL) {
+							                                    var2 = buscaVariavel(&p, &aux);
+							                                    if (var2.valorInt != -1) {
+							                                        condicao2 = (var1.valorInt >= !var2.valorInt || var1.valorFloat >= !var2.valorFloat);
+							                                    } else if (Inteiro((*aux)->token)) {
+							                                        num = converteInt((*aux)->token);
+							                                        condicao2 = (var1.valorInt >= !num);
+							                                    } else if (Float((*aux)->token)) {
+							                                        numf = converteFloat((*aux)->token);
+							                                        condicao2 = (var1.valorInt >= !numf || var1.valorFloat >= !numf);
+							                                    } else {
+							                                        flag = 1;
+							                                    }
+							                                } else flag = 1;
+							                            }
+							                            else if (strcmp((*aux)->token, "<=") == 0) {
+							                                *aux = (*aux)->prox;
+							                                if (*aux != NULL) {
+							                                    var2 = buscaVariavel(&p, &aux);
+							                                    if (var2.valorInt != -1) {
+							                                        condicao2 = (var1.valorInt <= !var2.valorInt || var1.valorFloat <= !var2.valorFloat);
+							                                    } else if (Inteiro((*aux)->token)) {
+							                                        num = converteInt((*aux)->token);
+							                                        condicao2 = (var1.valorInt <= !num);
+							                                    } else if (Float((*aux)->token)) {
+							                                        numf = converteFloat((*aux)->token);
+							                                        condicao2 = (var1.valorInt <= !numf || var1.valorFloat <= !numf);
+							                                    } else {
+							                                        flag = 1;
+							                                    }
+							                                } else flag = 1;
+							                            }
+							                        }
+							                    } else flag = 1;
+							                } else flag = 1;
+							            }
+							            *aux=(*aux)->prox;
+										if(strcmp(logico,"&&")==0)
+											return (condicao1 && condicao2);
+										else
+											return (condicao1 || condicao2);
+							        } else flag = 1;
+							    }
+							    if((*aux)->token[0]==')')
+							    	return condicao1;
+							    else
+							    	flag=1;
+							}else 
+								flag = 1;
+
+                        }
+                    } else {
+                        flag = 1;
+                    }
+                }
+            } else {
+                flag = 1;
+            }
+        } else {
+            flag = 1;
+        }
+    } else {
+        flag = 1;
+    }
+    
+}
+
+
+
 
 
 

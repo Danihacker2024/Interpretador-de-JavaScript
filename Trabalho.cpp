@@ -103,12 +103,12 @@ Linha *leArq(){
 }
 
 void ExecutaSequencial(Linha *linha, Pilha **p){
-	flag=0;
+	int flag=0,flagif=1;
 	Tokens *aux;
 	int y=6;
 	while(linha!=NULL && !flag){
 		aux = linha->pTokens;
-		while(aux!=NULL && !flag){
+		while(aux!=NULL && !flag && flagif){
 			//chamadas da fun��o aqui
 			/*
 			if(strcmp(aux->token,"console.log")==0){
@@ -131,13 +131,16 @@ void ExecutaSequencial(Linha *linha, Pilha **p){
 				printf("%s",variavel.valorString);
 				y++;*/	
 			} else if(strcmp(aux->token,"if")==0){
-				If(&p,&aux,&flag);
+				flagif = If(&p,&aux,&flag);
 			} else if(strcmp(aux->token,"if")==0){
+				//implementar
 				Else(&p,&aux,&flag);
 			}
 			aux=aux->prox;	
 		}
 		linha=linha->prox;
+		if(!flagif && strcmp(aux->token,"}")==0)
+			flagif=1;
 	}
 	if(flag){
 		gotoxy(28,6);
