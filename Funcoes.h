@@ -1,3 +1,6 @@
+#ifndef FUNCOES_H   
+#define FUNCOES_H
+
 #include <stdio.h>
 #include <string.h>
 #include "Trabalho.h"
@@ -142,17 +145,37 @@ var declaracao(Tokens **aux){
 					if((*aux)->token[0]=='-'){
 						*aux=(*aux)->prox;
 						if(*aux!=NULL){
-							if(Inteiro((*aux)->token))
+							if(Inteiro((*aux)->token)){
 								variavel.valorInt=-converteInt((*aux)->token);
-							else if(Float((*aux)->token))
+								variavel.valorFloat=NULL;
+								strcpy(variavel.valorString,NULL);
+							}
+							/*
+							if((*aux)->token->terminal = 1){
+								converteInt((*aux)->token)
+							}
+							else if ((*aux)->token->terminal = 2){
+								converteFloat((*aux)->token)
+							}
+							*/
+							else if(Float((*aux)->token)){
 								variavel.valorFloat=-converteFloat((*aux)->token);
+								variavel.valorInt=NULL;
+								strcpy(variavel.valorString,NULL);
+							}
 						}
 					}else{
 						
-						if(Inteiro((*aux)->token))
+						if(Inteiro((*aux)->token)){
 							variavel.valorInt=converteInt((*aux)->token);
-						else if(Float((*aux)->token))
+							variavel.valorFloat=NULL;
+							strcpy(variavel.valorString,NULL);
+						}
+						else if(Float((*aux)->token)){
 							variavel.valorFloat=converteFloat((*aux)->token);
+							variavel.valorInt=NULL;
+							strcpy(variavel.valorString,NULL);
+						}
 						else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
 							*aux=(*aux)->prox;
 							while((*aux)->token[0]!='"' && flag){
@@ -163,6 +186,8 @@ var declaracao(Tokens **aux){
 								} else
 									flag=0;
 							}
+							variavel.valorInt=NULL;
+							variavel.valorFloat=NULL;
 						}	
 					}
 				}
@@ -200,3 +225,5 @@ void consoleLog(Tokens **aux,int y){
 		calculaDoisNumeros(*aux);
 	}*/
 }
+
+#endif

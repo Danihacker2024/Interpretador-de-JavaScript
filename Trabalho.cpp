@@ -6,6 +6,7 @@
 #include "StrDin.h"
 #include "Funcoes.h"
 #include "Interface.h"
+#include "Pilha.h"
 
 Linha *leArq(){
 	Linha *inicio=NULL;
@@ -26,11 +27,11 @@ Linha *leArq(){
 					juntaString(&str,inicio);
 					insereCaracter(&str,caracter,inicio);
 					fscanf(arq,"%c",&caracter);
-					//se for * é elevado
+					//se for * ï¿½ elevado
 					if(caracter=='*'){
 						insereCaracter(&str,caracter,inicio);
 						juntaString(&str,inicio);
-					//senão é um * normal
+					//senï¿½o ï¿½ um * normal
 					}else{
 						juntaString(&str,inicio);
 						insereCaracter(&str,caracter,inicio);
@@ -43,11 +44,11 @@ Linha *leArq(){
 					juntaString(&str,inicio);
 					insereCaracter(&str,caracter,inicio);
 					fscanf(arq,"%c",&caracter);
-					//se for igual é comparação
+					//se for igual ï¿½ comparaï¿½ï¿½o
 					if(caracter=='='){
 						insereCaracter(&str,caracter,inicio);
 						juntaString(&str,inicio);
-					//senão é somente um caracter
+					//senï¿½o ï¿½ somente um caracter
 					}else{
 						juntaString(&str,inicio);
 						insereCaracter(&str,caracter,inicio);
@@ -101,13 +102,13 @@ Linha *leArq(){
 	return inicio;
 }
 
-void ExecutaSequencial(Linha *linha){
+void ExecutaSequencial(Linha *linha, Pilha **p){
 	Tokens *aux;
 	int y=6;
 	while(linha!=NULL){
 		aux = linha->pTokens;
 		while(aux!=NULL){
-			//chamadas da função aqui
+			//chamadas da funï¿½ï¿½o aqui
 			/*
 			if(strcmp(aux->token,"console.log")==0){
 				system("cls");
@@ -118,6 +119,7 @@ void ExecutaSequencial(Linha *linha){
 			}*/
 			if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
 				var variavel = declaracao(&aux);
+				push(&p,variavel);
 				//system("cls");
 				//FormPrincipal();   
 				//Menu();
@@ -131,14 +133,37 @@ void ExecutaSequencial(Linha *linha){
 		}
 		linha=linha->prox;
 	}
-	getch();
 }
 
+void MemoriaRAM(Pilha *p){
+	var aux;
+	int y=6;
+	system("cls");
+	FormPrincipal();   
+	Menu();
+	gotoxy(28,y);
+	printf("&\tidentificador\tvalor\tponteiro");
+	y++;
+	while(!isEmpty(p)){
+		pop(&p,&aux);
+		gotoxy(28,y);
+		printf("%u\t%s\t",&aux,aux.nome);
+		if(aux.valorInt!=NULL)
+			printf("%d\t",aux.valorInt);
+		else if(aux.valorFloat!=NULL)
+			printf("%.2f\t",aux.valorFloat);
+		else 
+			printf("%s\t",aux.valorString);
+		y++;	
+	}
+}
 
 int main(void){
 	Linha *codigo;
     exibirParticipantes();
     char opcao;
+    Pilha *p;
+	init(&p);
     //vai precisar mudar a logica
     do {
         system("cls");
@@ -149,7 +174,7 @@ int main(void){
 		if (opcao == 0 || opcao == 224) {
             // segunda leitura -> tecla especial
             opcao = getch();
-            //não é possivel fazer as outras coisas se ele não ler o arquivo primeiro
+            //nï¿½o ï¿½ possivel fazer as outras coisas se ele nï¿½o ler o arquivo primeiro
 	        switch(opcao){
 	        	case 65://F7 Abrir arquivo fonte
 	        		system("cls");
@@ -171,9 +196,11 @@ int main(void){
 		        					case 65:
 										break;
 									case 66://F8 Executar programa 
-						                ExecutaSequencial(codigo);
+						                ExecutaSequencial(codigo, &p);
 						                break;
 						            case 67://F9 Mostrar conteudo da Memoria RAM 
+										if (p!=NULL)
+											MemoriaRAM(p);
 						                break;
 						            case 68://F10 Mostrar tela (resultados do console.log)
 						            	break;
