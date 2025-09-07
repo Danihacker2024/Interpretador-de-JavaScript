@@ -132,15 +132,37 @@ void ExecutaSequencial(Linha *linha, Pilha **p){
 				y++;*/	
 			} else if(strcmp(aux->token,"if")==0){
 				flagif = If(&p,&aux,&flag);
-			} else if(strcmp(aux->token,"if")==0){
-				//implementar
-				Else(&p,&aux,&flag);
 			}
 			aux=aux->prox;	
 		}
 		linha=linha->prox;
-		if(!flagif && strcmp(aux->token,"}")==0)
+		if(!flagif && strcmp(aux->token,"}")==0){
 			flagif=1;
+			aux=aux->prox;
+			if(aux!=NULL){
+				if(strcmp(aux->token,"else")==0){
+					aux=aux->prox;
+					if(aux!=NULL){
+						if(strcmp(aux->token,"if")==0){
+							flagif = If(&p,&aux,&flag);
+						}
+					}
+				}
+			}else{
+				aux=linha->pTokens;
+				if(aux!=NULL){
+					if(strcmp(aux->token,"else")==0){
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(strcmp(aux->token,"if")==0){
+								flagif = If(&p,&aux,&flag);
+							}
+						}
+					}
+				}
+				linha=linha->prox;
+			}
+		}
 	}
 	if(flag){
 		gotoxy(28,6);
