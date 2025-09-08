@@ -1,3 +1,6 @@
+#ifndef STRDIN_H   
+#define STRDIN_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -58,4 +61,4 @@ void insereCaracter(StrDin **str, char c, Linha *inicio){
 
 
 
-
+#endif

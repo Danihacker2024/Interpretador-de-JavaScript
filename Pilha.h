@@ -1,11 +1,21 @@
+#ifndef PILHA_H   
+#define PILHA_H
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+struct variavel{
+	char nome[50];
+	int valorInt;
+	float valorFloat;
+	char valorString[100];
+};typedef struct variavel var;
 #include "Funcoes.h"
 
 struct pilha{
-	var info;
+	struct variavel info;
 	struct pilha *prox;
 };typedef struct pilha Pilha;
 
@@ -28,7 +38,8 @@ var top(Pilha *p){
 	var aux;
 	if(!isEmpty(p))
 		return p->info;
-	return aux.valorInt=-1;
+	aux.valorInt=-1;
+	return aux;
 }
 
 void pop(Pilha **p,var *x){
@@ -38,6 +49,9 @@ void pop(Pilha **p,var *x){
 		aux=*p;
 		*p=aux->prox;
 		free(aux);
-	}else
-		*x.valorInt=-1;
+	}else{
+		x->valorInt=-1;
+	}
 }
+
+#endif
