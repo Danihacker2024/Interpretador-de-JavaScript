@@ -11,6 +11,7 @@ struct variavel{
 	int valorInt;
 	float valorFloat;
 	char valorString[100];
+	int terminal;
 };typedef struct variavel var;
 
 
