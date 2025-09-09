@@ -102,7 +102,7 @@ Linha *leArq(){
 	return inicio;
 }
 
-void ExecutaSequencial(Linha *linha, struct pilha **p){
+Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 	Linha *listaConsoleLog;
 	Flag flag;
 	Tokens *aux;
@@ -113,12 +113,12 @@ void ExecutaSequencial(Linha *linha, struct pilha **p){
 			//chamadas da fun��o aqui
 			
 			if(strcmp(aux->token,"console.log")==0){
-				consoleLog(&aux, &listaConsoleLog, &flag.erro);
+				consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
 			}
 			if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
 				struct variavel variavel = declaracao(&aux,&flag.erro);
 				if(!flag.erro)
-					push(&p,variavel);
+					push(&*p,variavel);
 				//system("cls");
 				//FormPrincipal();   
 				//Menu();
@@ -128,7 +128,7 @@ void ExecutaSequencial(Linha *linha, struct pilha **p){
 				printf("%s",variavel.valorString);
 				y++;*/	
 			} else if(strcmp(aux->token,"if")==0){
-				flag.If = If(&p,&aux,&flag);
+				flag.If = If(&*p,&aux,&flag);
 			}
 			aux=aux->prox;	
 		}
@@ -164,7 +164,8 @@ void ExecutaSequencial(Linha *linha, struct pilha **p){
 	if(flag){
 		gotoxy(28,6);
 		printf("Erro na execucao do codigo");
-	}		
+	}
+	return listaConsoleLog;		
 }
 
 void MemoriaRAM(Pilha *p){
@@ -190,8 +191,36 @@ void MemoriaRAM(Pilha *p){
 	}
 }
 
+void MostrarTela(Linha *consoleLog,Pilha **p){
+	Tokens *aux;
+	var x;
+	while(consoleLog!=NULL){
+		aux=consoleLog->pTokens;
+		while(aux!=NULL){
+			if(strcmp(aux->token,",")==0 || strcmp(aux->token,"+")==0){
+				x = buscaVariavel(&*p,aux);
+				if(x.valorInt!=NULL){
+					printf("%d",x.valorInt);
+				}else if(x.valorFloat!=NULL){
+					printf("%f",x.valorFloat);
+				} else
+					printf("%s",x.valorString);
+			}else{
+				printf("%s ",aux->token);
+				aux=aux->prox;	
+			}	
+		}
+		consoleLog->prox;
+	}
+	printf("\n");
+}
+
+
+
+
 int main(void){
 	Linha *codigo;
+	Linha *consoleLog;
     exibirParticipantes();
     char opcao;
     Pilha *p;
@@ -228,13 +257,14 @@ int main(void){
 		        					case 65:
 										break;
 									case 66://F8 Executar programa 
-						                ExecutaSequencial(codigo, &p);
+						                consoleLog = ExecutaSequencial(codigo, &p);
 						                break;
 						            case 67://F9 Mostrar conteudo da Memoria RAM 
 										if (p!=NULL)
 											MemoriaRAM(p);
 						                break;
 						            case 68://F10 Mostrar tela (resultados do console.log)
+						            		MostrarTela(consoleLog,&p);
 						            	break;
 						        	default:
 						                gotoxy(50, 10);

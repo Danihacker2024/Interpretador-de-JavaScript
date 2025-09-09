@@ -570,11 +570,11 @@ char If(Pilha **p, Tokens **aux, char *flag) {
                                     flag = 1;
                                 }
                             }
-                            //aqui começa a condição 2
+                            //aqui comeÃ§a a condiÃ§Ã£o 2
 							*aux = (*aux)->prox;
 							if (*aux != NULL) {
 							    if (strcmp((*aux)->token, "&&") == 0 || strcmp((*aux)->token, "||") == 0) {
-							        strcpy(logico, (*aux)->token);  // guarda o operador lógico
+							        strcpy(logico, (*aux)->token);  // guarda o operador lÃ³gico
 							        *aux = (*aux)->prox;
 							        if (*aux != NULL) {
 							            // ============================
@@ -749,7 +749,7 @@ var declaracao(Tokens **aux,char *flag){
 		if(*aux!=NULL){
 			if((*aux)->token[0]=='='){
 				*aux=(*aux)->prox;
-				//tem que verificar se é negativo
+				//tem que verificar se Ã© negativo
 				if(*aux!=NULL){
 					if((*aux)->token[0]=='-'){
 						*aux=(*aux)->prox;
@@ -812,30 +812,38 @@ var declaracao(Tokens **aux,char *flag){
 
 
 
-void consoleLog(Tokens **aux,Linha **linha, char *flag.erro){
+void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
+	var variavel;
 	adicionarLinha(&*linha);
 	//[console.log]->[(]->["]->[conteudo]
-	*aux=(*aux)->prox->prox->prox;
-	int x=28;
+	*aux=(*aux)->prox->prox->prox;	
 	if(*aux!=NULL){
 		while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
-			gotoxy(x,y);
-			printf("%s ",(*aux)->token);
+			adicionarToken(*linha,(*aux)->token);
 			*aux=(*aux)->prox;
 		}
 	}else{
-		gotoxy(x,y);
-		printf("Erro no console.log");
+		*flag=1;
 	}
-	getch();
-	
 	//["]->[)] || ["]->[,]
-	//*aux=(*aux)->prox;
-	/*
-	if((*aux)->token[0]==',' || (*aux)->token[0]=='+'){
-		*aux=(*aux)->prox;
-		calculaDoisNumeros(*aux);
-	}*/
+	*aux=(*aux)->prox;
+	if(*aux!=NULL){
+		if(strcmp(aux->token,",")==0 || strcmp(aux->token,"+")==0){
+			adicionarToken(*linha,(*aux)->token);
+			*aux=(*aux)->prox;
+			if(*aux!=NULL){
+				variavel = buscaVariavel(&*p,&*aux);
+				if(variavel.valorInt!=-1){
+					if(variavel.valorInt!=NULL){
+						adicionarToken(*linha,(*aux)->token);
+					}
+				}else
+					*flag=1;
+			}else 
+				*flag=1;
+		}
+	}else 
+		*flag=1;
 }
 
 #endif
