@@ -103,6 +103,7 @@ Linha *leArq(){
 }
 
 void ExecutaSequencial(Linha *linha, struct pilha **p){
+	Linha *listaConsoleLog;
 	Flag flag;
 	Tokens *aux;
 	int y=6;
@@ -110,14 +111,10 @@ void ExecutaSequencial(Linha *linha, struct pilha **p){
 		aux = linha->pTokens;
 		while(aux!=NULL && !flag.erro && flag.If){
 			//chamadas da fun��o aqui
-			/*
+			
 			if(strcmp(aux->token,"console.log")==0){
-				system("cls");
-				FormPrincipal();   
-				Menu();
-				consoleLog(&aux,y);
-				y++;
-			}*/
+				consoleLog(&aux, &listaConsoleLog, &flag.erro);
+			}
 			if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
 				struct variavel variavel = declaracao(&aux,&flag.erro);
 				if(!flag.erro)

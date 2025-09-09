@@ -7,8 +7,8 @@
 #include "Trabalho.h"
 
 struct flag{
-	int erro;
-	int If;
+	char erro;
+	char If;
 };typedef struct flag Flag;
 
 
@@ -62,15 +62,15 @@ void calculaDoisNumeros(Tokens **aux){
 }
 */
 
-int Digito(char c) {
+char Digito(char c) {
 	if (c >= '0' && c <= '9')
     	return 1;
     return 0;
 }
 
 
-int Inteiro(char str[]) {
-	int flag=1;
+char Inteiro(char str[]) {
+	char flag=1;
 	int i=0;
     while(str[i] != '\0') {
         if (!Digito(str[i])) {
@@ -81,9 +81,9 @@ int Inteiro(char str[]) {
     return flag; 
 }
 
-int Float(char str[]) {
+char Float(char str[]) {
     int ponto = 0; 
-	int flag=1;
+	char flag=1;
 	int i=0;
     while(str[i] != '\0') {
         if (str[i] == '.') {
@@ -133,7 +133,7 @@ float converteFloat(char str[]) {
 var buscaVariavel(Pilha **p1,Tokens **aux){
 	var x,y;
 	Pilha *p2;
-	int flag=0;
+	char flag=0;
 	while(!isEmpty(*p1) && !flag){
 		pop(&p1,&x);
 		if(strcmp(x.nome,(*aux)->token)==0){
@@ -151,7 +151,7 @@ var buscaVariavel(Pilha **p1,Tokens **aux){
 	return x;
 }
 
-int If(Pilha **p, Tokens **aux, int *flag) {
+char If(Pilha **p, Tokens **aux, char *flag) {
     var var1, var2;
     int num;
     float numf;
@@ -734,11 +734,11 @@ int If(Pilha **p, Tokens **aux, int *flag) {
     } else {
         flag = 1;
     }
-    
+    return 0; 
 }
 
 
-var declaracao(Tokens **aux,int *flag){
+var declaracao(Tokens **aux,char *flag){
 	var variavel;
 	strcpy(variavel.valorString, "");
 	strcpy(variavel.nome, "");
@@ -812,7 +812,8 @@ var declaracao(Tokens **aux,int *flag){
 
 
 
-void consoleLog(Tokens **aux,int y){
+void consoleLog(Tokens **aux,Linha **linha, char *flag.erro){
+	adicionarLinha(&*linha);
 	//[console.log]->[(]->["]->[conteudo]
 	*aux=(*aux)->prox->prox->prox;
 	int x=28;
