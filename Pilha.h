@@ -12,7 +12,7 @@ struct variavel{
 	float valorFloat;
 	char valorString[100];
 };typedef struct variavel var;
-#include "Funcoes.h"
+
 
 struct pilha{
 	struct variavel info;
@@ -44,9 +44,9 @@ var top(Pilha *p){
 
 void pop(Pilha **p,var *x){
 	Pilha *aux;
-	if(isEmpty(*p)){
-		*x=(*p)->info;
+	if(isEmpty(*p)){	
 		aux=*p;
+		*x=(*p)->info;
 		*p=aux->prox;
 		free(aux);
 	}else{

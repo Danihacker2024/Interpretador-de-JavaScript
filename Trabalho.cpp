@@ -68,6 +68,7 @@ Linha *leArq(){
 				case ',':
 				case ';':
 				case ' ':
+				case '\t':
 					juntaString(&str,inicio);
 					break;
 				case '+':
@@ -103,8 +104,10 @@ Linha *leArq(){
 }
 
 Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
-	Linha *listaConsoleLog;
+	Linha *listaConsoleLog = NULL;
 	Flag flag;
+	flag.erro=0;
+	flag.If=1;
 	Tokens *aux;
 	int y=6;
 	while(linha!=NULL && !flag.erro){
@@ -128,7 +131,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				printf("%s",variavel.valorString);
 				y++;*/	
 			} else if(strcmp(aux->token,"if")==0){
-				flag.If = If(&*p,&aux,&flag);
+				flag.If = If(&*p,&aux,&flag.erro);
 			}
 			aux=aux->prox;	
 		}
@@ -141,7 +144,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 					aux=aux->prox;
 					if(aux!=NULL){
 						if(strcmp(aux->token,"if")==0){
-							flag.If = If(&p,&aux,&flag);
+							flag.If = If(&*p,&aux,&flag.erro);
 						}
 					}
 				}
@@ -152,7 +155,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 						aux=aux->prox;
 						if(aux!=NULL){
 							if(strcmp(aux->token,"if")==0){
-								flag.If = If(&p,&aux,&flag);
+								flag.If = If(&*p,&aux,&flag.erro);
 							}
 						}
 					}
@@ -161,7 +164,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 			}
 		}
 	}
-	if(flag){
+	if(flag.erro){
 		gotoxy(28,6);
 		printf("Erro na execucao do codigo");
 	}
@@ -198,7 +201,7 @@ void MostrarTela(Linha *consoleLog,Pilha **p){
 		aux=consoleLog->pTokens;
 		while(aux!=NULL){
 			if(strcmp(aux->token,",")==0 || strcmp(aux->token,"+")==0){
-				x = buscaVariavel(&*p,aux);
+				x = buscaVariavel(&*p,&aux);
 				if(x.valorInt!=NULL){
 					printf("%d",x.valorInt);
 				}else if(x.valorFloat!=NULL){
@@ -210,7 +213,7 @@ void MostrarTela(Linha *consoleLog,Pilha **p){
 				aux=aux->prox;	
 			}	
 		}
-		consoleLog->prox;
+		consoleLog=consoleLog->prox;
 	}
 	printf("\n");
 }
