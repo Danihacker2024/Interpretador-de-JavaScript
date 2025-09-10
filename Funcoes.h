@@ -151,12 +151,84 @@ var buscaVariavel(Pilha **p1,Tokens **aux){
 	return x;
 }
 
+char compara(var var1, var var2,char comparador[]){
+	if(strcmp(comparador,"==")==0){
+	    if (var1.terminal == var2.terminal) {
+	    	if(var1.terminal==1)
+	        	return(var1.valorInt == var2.valorInt);
+	        return (var1.valorFloat == var2.valorFloat);
+	    } else 
+	        if(var1.terminal==1)
+	         	return (var1.valorInt == var2.valorFloat);
+	    return (var1.valorFloat == var2.valorInt);
+	} else if(strcmp(comparador,"!=")==0){
+		if (var1.terminal == var2.terminal) {
+	    	if(var1.terminal==1)
+	        	return(var1.valorInt != var2.valorInt);
+	        return (var1.valorFloat != var2.valorFloat);
+	    } else 
+	        if(var1.terminal==1)
+	         	return (var1.valorInt != var2.valorFloat);
+	    return (var1.valorFloat != var2.valorInt);	
+	} else if(strcmp(comparador,">")==0){
+		if (var1.terminal == var2.terminal) {
+	    	if(var1.terminal==1)
+	        	return(var1.valorInt > var2.valorInt);
+	        return (var1.valorFloat > var2.valorFloat);
+	    } else 
+	        if(var1.terminal==1)
+	         	return (var1.valorInt > var2.valorFloat);
+	    return (var1.valorFloat > var2.valorInt);	
+	}else if(strcmp(comparador,">=")==0){
+		if (var1.terminal == var2.terminal) {
+	    	if(var1.terminal==1)
+	        	return(var1.valorInt >= var2.valorInt);
+	        return (var1.valorFloat >= var2.valorFloat);
+	    } else 
+	        if(var1.terminal==1)
+	         	return (var1.valorInt >= var2.valorFloat);
+	    return (var1.valorFloat >= var2.valorInt);
+	}else if(strcmp(comparador,"<")==0){
+		if (var1.terminal == var2.terminal) {
+	    	if(var1.terminal==1)
+	        	return(var1.valorInt < var2.valorInt);
+	        return (var1.valorFloat < var2.valorFloat);
+	    } else 
+	        if(var1.terminal==1)
+	         	return (var1.valorInt < var2.valorFloat);
+	    return (var1.valorFloat < var2.valorInt);	
+	} else if(strcmp(comparador,"<=")==0){
+		
+	}
+	
+	
+}
+
+void atribui(var *var, int sinal, Pilha **p, Tokens **aux ){
+	var = buscaVariavel(&*p, &*aux);
+    if (var.terminal == -1) {
+		if(Inteiro((*aux)->token)){
+			var.valorInt=converteInt((*aux)->token)*(sinal);
+			var.terminal=1;
+		} if(Float((*aux)->token)){
+			var.valorFloat=converteFloat((*aux)->token)*(sinal);
+			var.terminal=2;
+		}
+	}
+	else
+		if(var.terminal==1)
+        	var.valorInt= var.valorInt * sinal;
+        else
+        	var.valorFloat=var.valorFloat*sinal;
+}
+
 char If(Pilha **p, Tokens **aux, char *flag) {
     var var1, var2;
     int num;
     float numf;
-    int condicao1, condicao2;
+    char condicao1, condicao2;
 	char logico[5];
+	char comparador[5];
     *aux = (*aux)->prox;
     // NULL representa o fim da linha
     if (*aux != NULL) {
@@ -166,43 +238,58 @@ char If(Pilha **p, Tokens **aux, char *flag) {
                 if (strcmp((*aux)->token, "!") == 0) {
                     *aux = (*aux)->prox;
                     if (*aux != NULL) {
-                        var1 = buscaVariavel(&*p, &*aux);
-                        if (var1.terminal != -1) {
+                        atribui(&var1, -1, &*p, &*aux );
+                        *aux = (*aux)->prox;
+                        if (*aux != NULL) {
+                            strcpy(comparador,(*aux)->token);
                             *aux = (*aux)->prox;
                             if (*aux != NULL) {
-                                if (strcmp((*aux)->token, "==") == 0) {
-                                    *aux = (*aux)->prox;
-                                    if (*aux != NULL) {
-                                        var2 = buscaVariavel(&*p, &*aux);
-                                        // onde parei
-                                        if (var2.terminal != -1) {
-                                            if (var1.terminal == 1 && var2.terminal==1) {
-                                                condicao1 = (var1.valorInt == !var2.valorInt);
-                                            } else if (var1.terminal == 2 && var2.terminal==2) {
-                                                condicao1 = (var1.valorFloat == !var2.valorFloat);
-                                            } else {
-                                                condicao1 = 0;
-                                            }
-                                        } else if (Inteiro((*aux)->token)) {
-                                            num = converteInt((*aux)->token);
-                                            if  (var1.terminal == 1){
-                                                condicao1 = (var1.valorInt == !num);
-                                            } else {
-                                                condicao1 = 0;
-                                            }
-                                        } else if (Float((*aux)->token)) {
-                                            numf = converteFloat((*aux)->token);
-                                            if  (var1.terminal == 2){
-                                                condicao1 = (var1.valorFloat == !numf);
-                                            } else {
-                                                condicao1 = 0;
-                                            }
-                                        } else {
-                                            *flag = 1;
-                                        }
-                                    } else {
-                                        *flag = 1;
-                                    }
+                            	if (strcmp((*aux)->token, "!") == 0) {
+                            		*aux = (*aux)->prox;
+                            		if (*aux != NULL) {
+		                                atribui(&var2, -1, &*p, &*aux );
+			                        }else
+			                        	*flag=-1;
+								}else
+                            		atribui(&var2, 1, &*p, &*aux );
+                			}else
+                				*flag=-1;
+                		}else
+							*flag=-1;
+					}else 
+						*flag=-1;
+				}else{
+                    atribui(&var1, 1, &*p, &*aux );
+                    *aux = (*aux)->prox;
+                    if (*aux != NULL) {
+                        strcpy(comparador,(*aux)->token);
+                        *aux = (*aux)->prox;
+                        if (*aux != NULL) {
+                        	if (strcmp((*aux)->token, "!") == 0) {
+                        		*aux = (*aux)->prox;
+                        		if (*aux != NULL) {
+	                                atribui(&var2, -1, &*p, &*aux );
+		                        }else
+		                        	*flag=-1;
+							}else
+                        		atribui(&var2, 1, &*p, &*aux );  
+            			}else
+            				*flag=-1;
+            		}else
+						*flag=-1;			
+				}
+				condicao1 = compara(var1,var2,comparador);
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+        	}
                                 } else if (strcmp((*aux)->token, "!=") == 0) {
                                     *aux = (*aux)->prox;
                                     if (*aux != NULL) {
