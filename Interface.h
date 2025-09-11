@@ -44,16 +44,26 @@ void FormPrincipal(void) {
     Moldura(26, 5, 119, 29, 3, 0);
 }
 
-void Menu() {
-    char opcao;
+void Menu1() {
     system("cls");
 	FormPrincipal();
     textcolor(15);
     textbackground(0);
     textcolor(10);
     textbackground(0);
-    gotoxy(3,17);
+    gotoxy(3,21);
     printf("[F7] Abrir Arquivo");
+    gotoxy(3,22);
+    printf("[ESC] - Sair");
+}
+
+void Menu2(){
+	system("cls");
+	FormPrincipal();
+    textcolor(15);
+    textbackground(0);
+    textcolor(10);
+    textbackground(0);
     gotoxy(3,18);
     printf("[F8] Executar programa");
     gotoxy(3,19);
@@ -62,6 +72,8 @@ void Menu() {
     printf("da Memoria RAM");
     gotoxy(3,21);
     printf("[F10] Mostrar tela");
+    gotoxy(3,22);
+    printf("[ESC] - Sair");
 }
 
 
@@ -78,7 +90,6 @@ void exibirParticipantes(void){
     gotoxy(45,13);printf("Guilherme Gouveia de Oliveira e Silva");
     textcolor(0);
     textbackground(0);
-    gotoxy(120,30);printf(".");
     Sleep(2000);
 }
 

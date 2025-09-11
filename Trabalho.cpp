@@ -122,14 +122,6 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				struct variavel variavel = declaracao(&aux,&flag.erro);
 				if(!flag.erro)
 					push(&*p,variavel);
-				//system("cls");
-				//FormPrincipal();   
-				//Menu();
-				/*
-				gotoxy(28,y);
-				printf("%s = ",variavel.nome);
-				printf("%s",variavel.valorString);
-				y++;*/	
 			} else if(strcmp(aux->token,"if")==0){
 				flag.If = If(&*p,&aux,&flag.erro);
 			}
@@ -173,10 +165,8 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 
 void MemoriaRAM(Pilha *p){
 	var aux;
-	int y=6;
-	system("cls");
-	FormPrincipal();   
-	Menu();
+	int y=6;   
+	Menu2();
 	gotoxy(28,y);
 	printf("&\tidentificador\tvalor\tponteiro");
 	y++;
@@ -194,30 +184,41 @@ void MemoriaRAM(Pilha *p){
 			printf("NULL\t");
 		y++;	
 	}
+	getch();
 }
 
 void MostrarTela(Linha *consoleLog,Pilha **p){
 	Tokens *aux;
-	var x;
+	var var;
+	int y=6, x=28;
+	Menu2();
 	while(consoleLog!=NULL){
 		aux=consoleLog->pTokens;
 		while(aux!=NULL){
 			if(strcmp(aux->token,",")==0 || strcmp(aux->token,"+")==0){
-				x = buscaVariavel(&*p,&aux);
-				if(x.terminal==1){
-					printf("%d",x.valorInt);
-				}else if(x.terminal==2){
-					printf("%f",x.valorFloat);
+				aux=aux->prox;
+				var = buscaVariavel(&*p,&aux);
+				if(var.terminal==1){
+					gotoxy(x,y);
+					printf("%d",var.valorInt);
+				}else if(var.terminal==2){
+					gotoxy(x,y);
+					printf("%f",var.valorFloat);
 				} else
-					printf("%s",x.valorString);
+					gotoxy(x,y);
+					printf("%s",var.valorString);
 			}else{
-				printf("%s ",aux->token);
+				gotoxy(x,y);
+				printf("%s",aux->token);
 				aux=aux->prox;	
-			}	
+			}
+			x+=strlen(aux->token);	
 		}
 		consoleLog=consoleLog->prox;
+		y++;
 	}
 	printf("\n");
+	getch();
 }
 
 
@@ -225,42 +226,33 @@ void MostrarTela(Linha *consoleLog,Pilha **p){
 
 int main(void){
 	Linha *codigo;
-	Linha *consoleLog;
+	Linha *consoleLog=NULL;
     exibirParticipantes();
-    char opcao;
+    int opcao;
     Pilha *p;
 	init(&p);
     //vai precisar mudar a logica
-    do {
-        system("cls");
-        FormPrincipal();   
-        Menu();    
-        gotoxy(21,21);
+    do {   
+        Menu1();    
+        gotoxy(15,22);
 		opcao = getch();
 		if (opcao == 0 || opcao == 224) {
             // segunda leitura -> tecla especial
             opcao = getch();
             //n�o � possivel fazer as outras coisas se ele n�o ler o arquivo primeiro
 	        switch(opcao){
-	        	case 65://F7 Abrir arquivo fonte
-	        		system("cls");
-	        		FormPrincipal();   
-	        		Menu();
-	        		do{
-		        		codigo = leArq();
-				        if (codigo != NULL) {
-				        	system("cls");
-	        				FormPrincipal();   
-	        				Menu();
+	        	case 65://F7 Abrir arquivo fonte   
+	        		codigo = leArq();
+				    if (codigo != NULL) {  
+						do{ 
+	        				Menu2();
 				            exibirTokens(codigo);
-							gotoxy(21,21);
+							gotoxy(21,22);
 							opcao = getch();
 							if (opcao == 0 || opcao == 224) {
 	            			// segunda leitura -> tecla especial
 	            				opcao = getch();
 		        				switch(opcao){
-		        					case 65:
-										break;
 									case 66://F8 Executar programa 
 						                consoleLog = ExecutaSequencial(codigo, &p);
 						                break;
@@ -269,6 +261,7 @@ int main(void){
 											MemoriaRAM(p);
 						                break;
 						            case 68://F10 Mostrar tela (resultados do console.log)
+						            	if(consoleLog!=NULL)
 						            		MostrarTela(consoleLog,&p);
 						            	break;
 						        	default:
@@ -278,11 +271,11 @@ int main(void){
 						                break;
 		        				}
 							}
-				        } else {
-				            gotoxy(50, 19);
-				            printf("Nenhum token lido.");
-				        }
-				    }while(opcao!=65 && opcao!=27);
+				    	}while(opcao!=27);
+					} else {
+				        gotoxy(50, 19);
+				        printf("Nenhum token lido.");
+				    }
 	        		break;
 	            default:
 	                gotoxy(50, 10);
