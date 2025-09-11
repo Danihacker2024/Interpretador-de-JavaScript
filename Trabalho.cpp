@@ -184,12 +184,14 @@ void MemoriaRAM(Pilha *p){
 		pop(&p,&aux);
 		gotoxy(28,y);
 		printf("%u\t%s\t",&aux,aux.nome);
-		if(aux.valorInt!=NULL)
+		if(aux.terminal==1)
 			printf("%d\t",aux.valorInt);
-		else if(aux.valorFloat!=NULL)
+		else if(aux.terminal==2)
 			printf("%.2f\t",aux.valorFloat);
-		else 
+		else if(aux.terminal==3)
 			printf("%s\t",aux.valorString);
+		else
+			printf("NULL\t");
 		y++;	
 	}
 }
@@ -202,9 +204,9 @@ void MostrarTela(Linha *consoleLog,Pilha **p){
 		while(aux!=NULL){
 			if(strcmp(aux->token,",")==0 || strcmp(aux->token,"+")==0){
 				x = buscaVariavel(&*p,&aux);
-				if(x.valorInt!=NULL){
+				if(x.terminal==1){
 					printf("%d",x.valorInt);
-				}else if(x.valorFloat!=NULL){
+				}else if(x.terminal==2){
 					printf("%f",x.valorFloat);
 				} else
 					printf("%s",x.valorString);
