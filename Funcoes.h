@@ -68,7 +68,6 @@ char Digito(char c) {
     return 0;
 }
 
-
 char Inteiro(char str[]) {
 	char flag=1;
 	int i=0;
@@ -128,7 +127,58 @@ float converteFloat(char str[]) {
     return num / divisor;
 }
 
+void converteStringInt(char str[], int num){
+	int i = 0;
+    int sinal = 0;
+    if (num < 0) {
+        sinal = 1;
+        num = -num;
+    }
+    do {
+        str[i++] = (num % 10) + '0';
+        num /= 10;
+    } while (num > 0);
+    if (sinal) {
+        str[i++] = '-';
+    }
+    str[i] = '\0';
+    int inicio = 0, fim = i - 1;
+    char temp;
+    while (inicio < fim) {
+        temp = str[inicio];
+        str[inicio] = str[fim];
+        str[fim] = temp;
+        inicio++;
+        fim--;
+    }
+}
 
+void converteStringFloat(float num, char str[]) {
+    int i = 0;
+    if (num < 0) {
+        str[i++] = '-';
+        num = -num;
+    }
+    int parteInteira = (int)num;
+    float parteFracionaria = num - parteInteira;
+    char buffer[20];
+    int j = 0;
+    do {
+        buffer[j++] = (parteInteira % 10) + '0';
+        parteInteira /= 10;
+    } while (parteInteira > 0);
+    for (int k = j - 1; k >= 0; k--) {
+        str[i++] = buffer[k];
+    }
+    str[i++] = '.';
+    for (int k = 0; k < 2; k++) {
+        parteFracionaria *= 10;
+        int digito = (int)parteFracionaria;
+        str[i++] = digito + '0';
+        parteFracionaria -= digito;
+    }
+    str[i] = '\0';
+}
 
 var buscaVariavel(Pilha **p1,Tokens **aux){
 	var x,y;
@@ -449,16 +499,39 @@ var declaracao(Tokens **aux,char *flag){
 
 void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
 	var variavel;
+	float valor;
+	char str[];
 	adicionarLinha(&*linha);
-	//[console.log]->[(]->["]->[conteudo]
-	*aux=(*aux)->prox->prox->prox;	
-	if(*aux!=NULL){
-		while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
-			adicionarToken(*linha,(*aux)->token);
-			*aux=(*aux)->prox;
+	//[console.log]->[(]->["]->[conteudo] console.log("7",a) console.log(a,"7")
+	//Se encontrou a variavel sozinha -> mostrar
+	//Se econtrou calculo -> calcular -> mostrar
+	*aux=(*aux)->prox->prox;
+	while(*aux != NULL){
+		if(strcmp((*aux)->token,'"')==0) || strcmp((*aux)->token,"'")==0) {
+			while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
+				adicionarToken(*linha,(*aux)->token);
+				*aux=(*aux)->prox;
+			}
+		}else{
+			if(strcmp((*aux)->token,'"')!=0) && strcmp((*aux)->token,"'")!=0){
+				while(strcmp((*aux)->token,',')!=0)){
+					//converte string para int
+					valor = converteString((*aux)->token);
+					//efetua o calculo e salva na variavel valor;
+					
+					
+					//String -> int/float -> calcula -> String
+					if(Float()){
+						converteStringFloat()
+						strcpy(str,converteString(valor))
+					}
+					
+					else if(Int(valor))
+						strcpy(str,converteString(valor))
+					adicionarToken(*linha,str);
+				}	
+			}		
 		}
-	}else{
-		*flag=1;
 	}
 	//["]->[)] || ["]->[,]
 	*aux=(*aux)->prox;

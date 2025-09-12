@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <conio.h>
 #include <time.h>
-#include <conio2.h>
+#include "meuconio.h"
 
 struct tokens{
 	char token[100];
