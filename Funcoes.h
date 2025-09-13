@@ -5,7 +5,6 @@
 #include <string.h>
 #include "PilhaVar.h"
 #include "ListaDeListasToken.h"
-#include "PilhaFuncoes.h"
 #include "ListaDeListasFunc.h"
 
 struct flag{
@@ -445,11 +444,11 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 							else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
 								*aux=(*aux)->prox;
 								variavel.terminal=3;
-								while((*aux)->token[0]!='"' && flag && (*aux)->token[0]!=39){
+								while((*aux)->token[0]!='"' && *flag && (*aux)->token[0]!=39){
 									if(*aux!=NULL){
 										strcat(variavel.valorString,(*aux)->token);
 										*aux=(*aux)->prox;
-										if((*aux)->token[0]!=39 || (*aux)->token[0]!='"' || *aux!=NULL)
+										if((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL)
 											strcat(variavel.valorString," ");
 									} else
 										*flag=1;
@@ -460,38 +459,16 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 						*flag=1;
 				}else
 					*flag=1;
-			}
+			}else
+				return variavel;
 		}else 
 			*flag=1;
 	}else 
 		*flag=1;
 	return variavel;
 }
-/*
-void buscaFuncao(PilhaF **pf1,char *token,char *function){
-	char str1[20], str2[20];
-	PilhaF *pf2;
-	initF(&pf2);
-	char flag=0;
-	while(!isEmptyF(*pf1) && !flag){
-		popF(&*pf1,str1);
-		if(strcmp(str1,token)==0){
-			flag=1;
-		}
-		pushF(&pf2,str1);
-	}
-	while(!isEmptyF(pf2)){
-		popF(&pf2,str2);
-		pushF(&*pf1,str2);
-	}
-	if(flag)
-		strcpy(function,str1);
-	else
-		strcpy(function,"");
-}*/
 
-
-void function(Pilha **p,Tokens **aux,char *flag,Pilha **p, LinhaF **linha){
+void function(Pilha **p,Tokens **aux,char *flag, LinhaF **linha){
 	var teste = inicializaVar(0);
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
@@ -501,17 +478,13 @@ void function(Pilha **p,Tokens **aux,char *flag,Pilha **p, LinhaF **linha){
 			if(strcmp((*aux)->token,"(")==0){
 				*aux=(*aux)->prox;
 				if(*aux!=NULL){
-					while(strcmp((*aux)->token,")")==0 && *aux!=NULL){
-						teste = declaracao(&*aux,&flag,*p);
-						if(!*flag)
-							adicionarTokenF(*linha,teste);
+					while(*aux!=NULL && strcmp((*aux)->token,")")!=0){
+						strcpy(teste.nome, (*aux)->token);
+						adicionarTokenF(*linha,teste);
 						*aux=(*aux)->prox;
-						if(*aux!=NULL){
-							if(strcmp((*aux)->token,",")!=0)
-								*flag=1;
-						}else 
-							*flag=1;
-						*aux=(*aux)->prox;		
+					    if (*aux != NULL && strcmp((*aux)->token, ",") == 0) {
+					        *aux = (*aux)->prox; 
+					    }		
 					}	
 				}else
 					*flag=1;
@@ -523,6 +496,56 @@ void function(Pilha **p,Tokens **aux,char *flag,Pilha **p, LinhaF **linha){
 		*flag=1;
 }
 
+void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
+	TokensF *auxf = linha->pTokens;
+	var variavel = inicializaVar(0);
+	var temp = inicializaVar(0);
+	while(*aux != NULL && strcmp((*aux)->token,")")!=0){
+		strcpy(temp.nome,auxf->var.nome);
+		variavel = buscaVariavel(&*p,&*aux);
+		if(variavel.terminal!=-1){
+			if(variavel.terminal==1){
+				temp.valorInt=variavel.valorInt;
+				temp.terminal=1;
+			}
+			else if(variavel.terminal==2){
+				temp.valorFloat=variavel.valorFloat;
+				temp.terminal=2;
+			}
+			else{
+				strcpy(temp.valorString,variavel.valorString);
+				temp.terminal=3;
+			}
+		}else{
+			if(Inteiro((*aux)->token)){
+				temp.valorInt = converteInt((*aux)->token);
+				temp.terminal=1;
+			} else if(Float((*aux)->token)){
+				temp.valorFloat = converteFloat((*aux)->token);
+				temp.terminal=2;
+			} else {
+				*aux=(*aux)->prox;
+				temp.terminal=3;
+			    while(*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39 && !*flag) {
+			        strcat(temp.valorString, (*aux)->token); 
+			        *aux = (*aux)->prox;                     
+			        if (*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39) {
+			            strcat(temp.valorString, " ");
+			        }
+			    }
+			    if (*aux == NULL) {
+			        *flag = 1; // Sinaliza erro de sintaxe
+			    }
+			}
+		}
+		push(&*p,temp);
+		auxf=auxf->prox;
+		*aux = (*aux)->prox;
+		if(*aux != NULL && strcmp((*aux)->token, ",") == 0)
+			*aux = (*aux)->prox;
+	}
+}
+
 
 
 
@@ -532,7 +555,7 @@ void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
 	//[console.log]->[(]->["]->[conteudo]
 	*aux=(*aux)->prox->prox->prox;	
 	if(*aux!=NULL){
-		while((*aux)->token[0]!='"' && flag && (*aux)->token[0]!=39){
+		while((*aux)->token[0]!='"' && *flag && (*aux)->token[0]!=39){
 			adicionarToken(*linha,(*aux)->token);
 			*aux=(*aux)->prox;
 		}

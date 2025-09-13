@@ -31,7 +31,7 @@ void NovaLinhaF(LinhaF **linha,char *nomeF){
 void NovoTokenF(TokensF **novo, var var){
 	*novo=(TokensF*)malloc(sizeof(TokensF));
 	(*novo)->prox=NULL;
-	(*nove)->var=var;
+	(*novo)->var=var;
 }
 
 void adicionarLinhaF(LinhaF **inicio,char *nomeF){
@@ -57,9 +57,9 @@ LinhaF *buscaUltimaLinhaF(LinhaF *inicio){
 	return aux;
 }
 
-void buscaFuncao(LinhaF **linha, char *nomeFunc){
-	while(strcmp(*linha->nomeFunc,nomeFunc)!=0 && *linha!=NULL)
-		*linha=(*linha)->ant;
+void buscaFuncao(LinhaF **linha, char *nomeF){
+	while(*linha!=NULL && strcmp((*linha)->nomeFunc,nomeF)!=0)
+		*linha=(*linha)->prox;
 }
 
 

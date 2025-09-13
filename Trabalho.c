@@ -8,7 +8,6 @@
 #include "PilhaVar.h" 
 #include "Funcoes.h"
 #include "Interface.h"
-#include "PilhaFuncoes.h"
 
 Linha *leArq(){
 	Linha *inicio=NULL;
@@ -65,14 +64,15 @@ Linha *leArq(){
 					juntaString(&str,inicio);
 					break;
 				case '\n':
+					juntaString(&str,inicio);
 					adicionarLinha(&inicio);
 					break;
-				case ',':
 				case ';':
 				case ' ':
 				case '\t':
 					juntaString(&str,inicio);
 					break;
+				case ',':
 				case '+':
 				case '-':
 				case '/':
@@ -107,12 +107,10 @@ Linha *leArq(){
 
 Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 	Linha *Local;
-	LinhaF *linhaF;
+	LinhaF *linhaF = NULL;
 	var testeV = inicializaVar(-1);
 	char achou=0;
 	char nomeF[20];
-	PilhaF *pf;
-	initF(&pf);
 	Linha *listaConsoleLog = NULL;
 	Flag flag;
 	iniciaFlag(&flag);
@@ -133,7 +131,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				 if(strcmp(aux->token,"if")==0){
 					flag.executa = flag.If = If(&*p,&aux,&flag.erro); 
 				} if(strcmp(aux->token,"function")==0){
-					function(&*p,&aux,&flag.erro,&*p,&*linhaF);
+					function(&*p,&aux,&flag.erro,&linhaF);
 					flag.executa=0;
 				} 
 				testeV = buscaVariavel(&*p,&aux);
@@ -142,19 +140,25 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				}
 				
 				//chamada de funcao
-				buscaFuncao(&linhaF,(*aux)->token);
-				if(strcmp(nomeF,aux->token)==0){
+				buscaFuncao(&linhaF,aux->token);
+				if(linhaF!=NULL){
 					//verifica variaveis dentro da chamada antes de ir pra linha da funcao
-					chamadaFuncao(&aux);
-					nomefuncao ( a, b, c ){
-						
-					}
-					Local=linha;
-					while(linha!=NULL && !flag.funcao){
-						linha=linha->ant;
-						if(strcmp(linha->pTokens->token,nomeF)==0){
-							flag.funcao=1;
-							linha=linha->prox;		
+					aux=aux->prox;
+					if(aux!=NULL){
+						if(strcmp(aux->token,"(")==0){
+							chamaFuncao(linhaF,&aux,&flag.erro,&*p);
+							Local=linha;
+							while(linha!=NULL && !flag.funcao){
+								linha=linha->ant;
+								aux=linha->pTokens;
+								aux=aux->prox;
+								if(aux!=NULL){
+									if(strcmp(aux->token,linhaF->nomeFunc)==0){
+										flag.funcao=1;
+										linha=linha->prox;		
+									}
+								}
+							}
 						}
 					}
 				}
@@ -177,10 +181,13 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				if(!flag.executa)
 					flag.executa=1;
 				if(flag.funcao){
-					flag.funcao=0;
-					while(linha!=Local)
-						linha=linha->prox;
-					linha=linha->prox;
+				    flag.funcao=0;
+				    while(linha != NULL && linha != Local) { 
+				        linha = linha->prox;
+				    }
+				    if (linha != NULL) {
+				        linha = linha->prox;
+				    }
 				}
 			}
 			if(aux!=NULL)
