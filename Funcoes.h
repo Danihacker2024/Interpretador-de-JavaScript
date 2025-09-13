@@ -3,9 +3,10 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "Pilha.h"
-#include "Trabalho.h"
+#include "PilhaVar.h"
+#include "ListaDeListasToken.h"
 #include "PilhaFuncoes.h"
+#include "ListaDeListasFunc.h"
 
 struct flag{
 	char erro;
@@ -466,20 +467,20 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 		*flag=1;
 	return variavel;
 }
-
+/*
 void buscaFuncao(PilhaF **pf1,char *token,char *function){
 	char str1[20], str2[20];
 	PilhaF *pf2;
-	init(&pf2);
+	initF(&pf2);
 	char flag=0;
-	while(!isEmptyf(*p1) && !flag){
+	while(!isEmptyF(*pf1) && !flag){
 		popF(&*pf1,str1);
 		if(strcmp(str1,token)==0){
 			flag=1;
 		}
 		pushF(&pf2,str1);
 	}
-	while(!isEmpty(p2)){
+	while(!isEmptyF(pf2)){
 		popF(&pf2,str2);
 		pushF(&*pf1,str2);
 	}
@@ -487,37 +488,35 @@ void buscaFuncao(PilhaF **pf1,char *token,char *function){
 		strcpy(function,str1);
 	else
 		strcpy(function,"");
-}
+}*/
 
 
-void function(Pilha **p,Tokens **aux,char **flag,PilhaF **pf){
-	var teste = inicializaVar(-1);
+void function(Pilha **p,Tokens **aux,char *flag,Pilha **p, LinhaF **linha){
+	var teste = inicializaVar(0);
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
-		pushF(&*pf,(*aux)->token);
-		if(strcmp((*aux)->token,"(")==0){
-			while(strcmp((*aux)->token,")")==0){
+		adicionarLinhaF(&*linha,(*aux)->token);
+		*aux=(*aux)->prox;
+		if(*aux!=NULL){
+			if(strcmp((*aux)->token,"(")==0){
 				*aux=(*aux)->prox;
 				if(*aux!=NULL){
-					if(strcmp((*aux)->token,"var")==0 || strcmp((*aux)->token,"let")==0){
+					while(strcmp((*aux)->token,")")==0 && *aux!=NULL){
+						teste = declaracao(&*aux,&flag,*p);
+						if(!*flag)
+							adicionarTokenF(*linha,teste);
 						*aux=(*aux)->prox;
 						if(*aux!=NULL){
-							teste = buscaVariavel(&*p,&*aux);
-							if(strcmp(teste.nome,(*aux)->token)!=0){
-								*aux=(*aux)->prox;
-								if(*aux!=NULL){
-									if(strcmp((*aux)->token,",")!=0)
-										*flag=1;
-								}else
-									*flag=1;
-							}else 
+							if(strcmp((*aux)->token,",")!=0)
 								*flag=1;
-						} else
+						}else 
 							*flag=1;
-					}
+						*aux=(*aux)->prox;		
+					}	
 				}else
 					*flag=1;
-			}
+			}else
+				*flag=1;
 		}else
 			*flag=1;
 	}else 

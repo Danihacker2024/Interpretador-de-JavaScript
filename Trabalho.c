@@ -3,9 +3,9 @@
 #include <string.h>
 #include <conio2.h>
 
-#include "Trabalho.h"
+#include "ListaDeListasToken.h"
 #include "StrDin.h"
-#include "Pilha.h" 
+#include "PilhaVar.h" 
 #include "Funcoes.h"
 #include "Interface.h"
 #include "PilhaFuncoes.h"
@@ -107,9 +107,10 @@ Linha *leArq(){
 
 Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 	Linha *Local;
+	LinhaF *linhaF;
 	var testeV = inicializaVar(-1);
 	char achou=0;
-	char testeF[20];
+	char nomeF[20];
 	PilhaF *pf;
 	initF(&pf);
 	Linha *listaConsoleLog = NULL;
@@ -124,36 +125,36 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				if(strcmp(aux->token,"console.log")==0){
 					consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
 				}
-				else if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
+				if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
 					struct variavel variavel = declaracao(&aux,&flag.erro,*p); // na declaração deve ter opcao para chamada de funcao
 					if(!flag.erro)
 						push(&*p,variavel);
 				}
-				else if(strcmp(aux->token,"if")==0){
+				 if(strcmp(aux->token,"if")==0){
 					flag.executa = flag.If = If(&*p,&aux,&flag.erro); 
-				}else if(strcmp(aux->token,"function")==0){
-					function(&*p,&aux,&flag.erro,&pf);
+				} if(strcmp(aux->token,"function")==0){
+					function(&*p,&aux,&flag.erro,&*p,&*linhaF);
 					flag.executa=0;
 				} 
-				else {
-					testeV = buscaVariavel(&*p,&aux);
-					if(strcmp(testeV.nome,aux->token)==0){
-						//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+				testeV = buscaVariavel(&*p,&aux);
+				if(strcmp(testeV.nome,aux->token)==0){
+					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+				}
+				
+				//chamada de funcao
+				buscaFuncao(&linhaF,(*aux)->token);
+				if(strcmp(nomeF,aux->token)==0){
+					//verifica variaveis dentro da chamada antes de ir pra linha da funcao
+					chamadaFuncao(&aux);
+					nomefuncao ( a, b, c ){
+						
 					}
-				}else {
-					//chamada de funcao
-					buscaFuncao(&pf,aux->token,testeF);
-					if(strcmp(testeF,aux->token)==0){
-						//verifica variaveis dentro da chamada antes de ir pra linha da funcao
-						
-						
-						Local=linha;
-						while(linha!=NULL && !flag.funcao){
-							linha=linha->ant;
-							if(strcmp(linha->pTokens,testeF)==0){
-								flag.funcao=1;
-								linha=linha->prox;		
-							}
+					Local=linha;
+					while(linha!=NULL && !flag.funcao){
+						linha=linha->ant;
+						if(strcmp(linha->pTokens->token,nomeF)==0){
+							flag.funcao=1;
+							linha=linha->prox;		
 						}
 					}
 				}
@@ -176,9 +177,10 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				if(!flag.executa)
 					flag.executa=1;
 				if(flag.funcao){
-					flag.funcao=0
-					while(linha!=local)
+					flag.funcao=0;
+					while(linha!=Local)
 						linha=linha->prox;
+					linha=linha->prox;
 				}
 			}
 			if(aux!=NULL)

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Trabalho.h"
+#include "ListaDeListasToken.h"
 
 struct stringdin{
 	char letra;

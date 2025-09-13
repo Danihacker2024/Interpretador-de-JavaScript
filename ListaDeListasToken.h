@@ -1,5 +1,5 @@
-#ifndef TRABALHO_H   
-#define TRABALHO_H
+#ifndef LISTADELISTASTOKEN_H   
+#define LISTADELISTASTOKEN_H
 
 #include <stdio.h>
 #include <stdlib.h>
