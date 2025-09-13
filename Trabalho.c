@@ -145,9 +145,8 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				} 
 				testeV = buscaVariavel(&*p,&aux);
 				if(strcmp(testeV.nome,aux->token)==0){
-					 //atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
 				}
-				
 				//chamada de funcao
 				buscaFuncao(&linhaF,aux->token);
 				if(linhaF!=NULL){

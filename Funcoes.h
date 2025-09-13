@@ -451,7 +451,7 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 								} else
 									*flag=1;
 							}
-						}	
+							}	
 					}
 				}else
 					*flag=1;
@@ -464,7 +464,6 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 }
 
 void function(Pilha **p,Tokens **aux,char *flag, LinhaF **linha){
-	var teste = inicializaVar(0);
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
 		adicionarLinhaF(&*linha,(*aux)->token);
@@ -474,7 +473,9 @@ void function(Pilha **p,Tokens **aux,char *flag, LinhaF **linha){
 				*aux=(*aux)->prox;
 				if(*aux!=NULL){
 					while(*aux!=NULL && strcmp((*aux)->token,")")!=0){
+						var teste = inicializaVar(-1);
 						strcpy(teste.nome, (*aux)->token);
+						push(&*p, teste); 
 						adicionarTokenF(*linha,teste);
 						*aux=(*aux)->prox;
 					    if (*aux != NULL && strcmp((*aux)->token, ",") == 0) {
@@ -491,11 +492,28 @@ void function(Pilha **p,Tokens **aux,char *flag, LinhaF **linha){
 		*flag=1;
 }
 
+void atualizaVariavel(Pilha **p, var variavel){
+	Pilha *p2;
+	var compara;
+	init(&p2); 
+	while(!isEmpty(*p)){
+		pop(&*p,&compara);
+		if(strcmp(variavel.nome,compara.nome)==0){
+			push(&p2,variavel);
+		}else 
+			push(&p2,compara);
+	}
+	while(!isEmpty(p2)){
+		pop(&p2,&compara);
+		push(&*p,compara);
+	}
+}
+
 void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 	TokensF *auxf = linha->pTokens;
 	var variavel = inicializaVar(0);
-	var temp = inicializaVar(0);
 	while(*aux != NULL && strcmp((*aux)->token,")")!=0){
+		var temp = inicializaVar(-1);
 		strcpy(temp.nome,auxf->var.nome);
 		variavel = buscaVariavel(&*p,&*aux);
 		if(variavel.terminal!=-1){
@@ -533,7 +551,7 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 			    }
 			}
 		}
-		push(&*p,temp);
+		atualizaVariavel(&*p, temp); 
 		auxf=auxf->prox;
 		*aux = (*aux)->prox;
 		if(*aux != NULL && strcmp((*aux)->token, ",") == 0)
