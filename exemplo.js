@@ -3,5 +3,6 @@ function varX(a){
 }
 
 var d = 70.5;
+var y;
 
 varX(d);

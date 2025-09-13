@@ -106,6 +106,7 @@ Linha *leArq(){
 }
 
 Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
+	var variavel;
 	Linha *Local;
 	LinhaF *linhaF = NULL;
 	var testeV = inicializaVar(-1);
@@ -124,9 +125,17 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 					consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
 				}
 				if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
-					struct variavel variavel = declaracao(&aux,&flag.erro,*p); // na declaração deve ter opcao para chamada de funcao
-					if(!flag.erro)
-						push(&*p,variavel);
+					variavel = inicializaVar(0);
+					aux=aux->prox;
+					if(aux!=NULL){
+						if(aux->prox==NULL){
+							strcpy(variavel.nome,aux->token);
+						}else 
+							variavel = declaracao(&aux,&flag.erro,*p); // na declaração deve ter opcao para chamada de funcao
+						if(!flag.erro)
+							push(&*p,variavel);
+					}else 
+						flag.erro=1;
 				}
 				 if(strcmp(aux->token,"if")==0){
 					flag.executa = flag.If = If(&*p,&aux,&flag.erro); 
@@ -136,7 +145,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				} 
 				testeV = buscaVariavel(&*p,&aux);
 				if(strcmp(testeV.nome,aux->token)==0){
-					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+					 //atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
 				}
 				
 				//chamada de funcao

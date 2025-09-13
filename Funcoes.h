@@ -400,69 +400,64 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 	var variavel = inicializaVar(0);
 	var teste = inicializaVar(-1);
 	//mudar verificacao de int ou float ou string 
-	*aux=(*aux)->prox;
-	if(*aux!=NULL){
-		teste = buscaVariavel(&p,&*aux);
-		if(strcmp(teste.nome,(*aux)->token)!=0){
-			strcpy(variavel.nome,(*aux)->token);
-			*aux=(*aux)->prox;
-			if(*aux!=NULL){
-				if((*aux)->token[0]=='='){
-					*aux=(*aux)->prox;
-					//tem que verificar se é negativo
-					if(*aux!=NULL){
-						if((*aux)->token[0]=='-'){
-							*aux=(*aux)->prox;
-							if(*aux!=NULL){
-								if(Inteiro((*aux)->token)){
-									variavel.valorInt=-converteInt((*aux)->token);
-									variavel.terminal=1;
-								}
-								/*
-								if((*aux)->token->terminal = 1){
-									converteInt((*aux)->token)
-								}
-								else if ((*aux)->token->terminal = 2){
-									converteFloat((*aux)->token)
-								}
-								*/
-								else if(Float((*aux)->token)){
-									variavel.valorFloat=-converteFloat((*aux)->token);
-									variavel.terminal=2;
-								}
-							}else
-								*flag=1;
-						}else{
+	teste = buscaVariavel(&p,&*aux);
+	if(strcmp(teste.nome,(*aux)->token)!=0){
+		strcpy(variavel.nome,(*aux)->token);
+		*aux=(*aux)->prox;
+		if(*aux!=NULL){
+			if((*aux)->token[0]=='='){
+				*aux=(*aux)->prox;
+				//tem que verificar se é negativo
+				if(*aux!=NULL){
+					if((*aux)->token[0]=='-'){
+						*aux=(*aux)->prox;
+						if(*aux!=NULL){
 							if(Inteiro((*aux)->token)){
-								variavel.valorInt=converteInt((*aux)->token);
+								variavel.valorInt=-converteInt((*aux)->token);
 								variavel.terminal=1;
 							}
+							/*
+							if((*aux)->token->terminal = 1){
+								converteInt((*aux)->token)
+							}
+							else if ((*aux)->token->terminal = 2){
+								converteFloat((*aux)->token)
+							}
+							*/
 							else if(Float((*aux)->token)){
-								variavel.valorFloat=converteFloat((*aux)->token);
+								variavel.valorFloat=-converteFloat((*aux)->token);
 								variavel.terminal=2;
 							}
-							else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
-								*aux=(*aux)->prox;
-								variavel.terminal=3;
-								while((*aux)->token[0]!='"' && *flag && (*aux)->token[0]!=39){
-									if(*aux!=NULL){
-										strcat(variavel.valorString,(*aux)->token);
-										*aux=(*aux)->prox;
-										if((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL)
-											strcat(variavel.valorString," ");
-									} else
-										*flag=1;
-								}
-							}	
+						}else
+							*flag=1;
+					}else{
+						if(Inteiro((*aux)->token)){
+							variavel.valorInt=converteInt((*aux)->token);
+							variavel.terminal=1;
 						}
-					}else
-						*flag=1;
+						else if(Float((*aux)->token)){
+							variavel.valorFloat=converteFloat((*aux)->token);
+							variavel.terminal=2;
+						}
+						else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
+							*aux=(*aux)->prox;
+							variavel.terminal=3;
+							while((*aux)->token[0]!='"' && *flag && (*aux)->token[0]!=39){
+								if(*aux!=NULL){
+									strcat(variavel.valorString,(*aux)->token);
+									*aux=(*aux)->prox;
+									if((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL)
+										strcat(variavel.valorString," ");
+								} else
+									*flag=1;
+							}
+						}	
+					}
 				}else
 					*flag=1;
 			}else
-				return variavel;
-		}else 
-			*flag=1;
+				*flag=1;
+		}
 	}else 
 		*flag=1;
 	return variavel;
