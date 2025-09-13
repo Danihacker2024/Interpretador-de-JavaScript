@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio2.h>
 
 #include "Trabalho.h"
 #include "StrDin.h"
 #include "Pilha.h" 
 #include "Funcoes.h"
 #include "Interface.h"
+#include "PilhaFuncoes.h"
 
 Linha *leArq(){
 	Linha *inicio=NULL;
@@ -104,67 +106,100 @@ Linha *leArq(){
 }
 
 Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
+	Linha *Local;
+	var testeV = inicializaVar(-1);
+	char achou=0;
+	char testeF[20];
+	PilhaF *pf;
+	initF(&pf);
 	Linha *listaConsoleLog = NULL;
 	Flag flag;
-	flag.erro=0;
-	flag.If=1;
+	iniciaFlag(&flag);
 	Tokens *aux;
 	int y=6;
 	while(linha!=NULL && !flag.erro){
 		aux = linha->pTokens;
-		while(aux!=NULL && !flag.erro && flag.If){
-			//chamadas da funï¿½ï¿½o aqui
-			
-			if(strcmp(aux->token,"console.log")==0){
-				consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
-			}
-			if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
-				struct variavel variavel = declaracao(&aux,&flag.erro);
-				if(!flag.erro)
-					push(&*p,variavel);
-			} else if(strcmp(aux->token,"if")==0){
-				flag.If = If(&*p,&aux,&flag.erro);
-			}
-			aux=aux->prox;	
-		}
-		linha=linha->prox;
-		if(!flag.If && strcmp(aux->token,"}")==0){
-			flag.If=1;
-			aux=aux->prox;
-			if(aux!=NULL){
-				if(strcmp(aux->token,"else")==0){
-					aux=aux->prox;
-					if(aux!=NULL){
-						if(strcmp(aux->token,"if")==0){
-							flag.If = If(&*p,&aux,&flag.erro);
-						}
-					}
+		while(aux!=NULL && !flag.erro){
+			if(flag.executa){
+				if(strcmp(aux->token,"console.log")==0){
+					consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
 				}
-			}else{
-				aux=linha->pTokens;
-				if(aux!=NULL){
-					if(strcmp(aux->token,"else")==0){
-						aux=aux->prox;
-						if(aux!=NULL){
-							if(strcmp(aux->token,"if")==0){
-								flag.If = If(&*p,&aux,&flag.erro);
+				else if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
+					struct variavel variavel = declaracao(&aux,&flag.erro,*p); // na declaração deve ter opcao para chamada de funcao
+					if(!flag.erro)
+						push(&*p,variavel);
+				}
+				else if(strcmp(aux->token,"if")==0){
+					flag.executa = flag.If = If(&*p,&aux,&flag.erro); 
+				}else if(strcmp(aux->token,"function")==0){
+					function(&*p,&aux,&flag.erro,&pf);
+					flag.executa=0;
+				} 
+				else {
+					testeV = buscaVariavel(&*p,&aux);
+					if(strcmp(testeV.nome,aux->token)==0){
+						//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+					}
+				}else {
+					//chamada de funcao
+					buscaFuncao(&pf,aux->token,testeF);
+					if(strcmp(testeF,aux->token)==0){
+						//verifica variaveis dentro da chamada antes de ir pra linha da funcao
+						
+						
+						Local=linha;
+						while(linha!=NULL && !flag.funcao){
+							linha=linha->ant;
+							if(strcmp(linha->pTokens,testeF)==0){
+								flag.funcao=1;
+								linha=linha->prox;		
 							}
 						}
 					}
 				}
-				linha=linha->prox;
 			}
+
+			if(strcmp(aux->token,"else")==0){
+				if(!flag.If){
+					aux=aux->prox;
+					if(aux!=NULL){
+						if(strcmp(aux->token,"if")==0){
+							flag.executa = flag.If = If(&*p,&aux,&flag.erro);
+						}else 
+							flag.executa=1;
+					}
+				}else{
+					flag.executa=0;
+				}
+			}
+			if(strcmp(aux->token,"}")==0){
+				if(!flag.executa)
+					flag.executa=1;
+				if(flag.funcao){
+					flag.funcao=0
+					while(linha!=local)
+						linha=linha->prox;
+				}
+			}
+			if(aux!=NULL)
+				aux=aux->prox;
 		}
+		if(linha!=NULL)
+			linha=linha->prox;
 	}
 	if(flag.erro){
+		Menu2();
 		gotoxy(28,6);
-		printf("Erro na execucao do codigo");
+		printf("Erro na execucao do programa");
+		getch();
 	}
 	return listaConsoleLog;		
 }
 
-void MemoriaRAM(Pilha *p){
-	var aux;
+Pilha *MemoriaRAM(Pilha *p){
+	Pilha *p2;
+	init(&p2);
+	var aux = inicializaVar(0); 
 	int y=6;   
 	Menu2();
 	gotoxy(28,y);
@@ -181,10 +216,13 @@ void MemoriaRAM(Pilha *p){
 		else if(aux.terminal==3)
 			printf("%s\t",aux.valorString);
 		else
-			printf("NULL\t");
-		y++;	
+			printf("-\t");
+		printf("[NULL]");
+		y++;
+		push(&p2,aux);
 	}
 	getch();
+	return p2;
 }
 
 void MostrarTela(Linha *consoleLog,Pilha **p){
@@ -231,6 +269,7 @@ int main(void){
     int opcao;
     Pilha *p;
 	init(&p);
+	var var = inicializaVar(-1);
     //vai precisar mudar a logica
     do {   
         Menu1();    
@@ -254,11 +293,13 @@ int main(void){
 	            				opcao = getch();
 		        				switch(opcao){
 									case 66://F8 Executar programa 
+										while(!isEmpty(p))
+											pop(&p,&var);
 						                consoleLog = ExecutaSequencial(codigo, &p);
 						                break;
 						            case 67://F9 Mostrar conteudo da Memoria RAM 
 										if (p!=NULL)
-											MemoriaRAM(p);
+											p = MemoriaRAM(p);
 						                break;
 						            case 68://F10 Mostrar tela (resultados do console.log)
 						            	if(consoleLog!=NULL)

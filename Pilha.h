@@ -28,7 +28,7 @@ void push(Pilha **p, var x){
 	Pilha *nova = (Pilha *)malloc(sizeof(Pilha));
 	nova->info = x;
 	nova->prox = *p;
-	*p=nova;
+	*p=nova;	
 }
 
 char isEmpty(Pilha *p){
@@ -45,7 +45,7 @@ var top(Pilha *p){
 
 void pop(Pilha **p,var *x){
 	Pilha *aux;
-	if(isEmpty(*p)){	
+	if(!isEmpty(*p)){	
 		aux=*p;
 		*x=(*p)->info;
 		*p=aux->prox;

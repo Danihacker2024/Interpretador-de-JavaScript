@@ -5,12 +5,21 @@
 #include <string.h>
 #include "Pilha.h"
 #include "Trabalho.h"
+#include "PilhaFuncoes.h"
 
 struct flag{
 	char erro;
+	char executa;
 	char If;
+	char funcao;
 };typedef struct flag Flag;
 
+void iniciaFlag(Flag *flag){
+	flag->erro=0;
+	flag->executa=1;
+	flag->If=1;
+	flag->funcao=0;
+}
 
 /*
 float stringToFloat(char str[]) {
@@ -128,11 +137,22 @@ float converteFloat(char str[]) {
     return num / divisor;
 }
 
+var inicializaVar(int terminal){
+    var v;
+    v.nome[0] = '\0';         
+    v.valorInt = 0;           
+    v.valorFloat = 0.0f;     
+	v.valorString[0] = '\0';  
+    v.terminal = terminal;    
+    return v;
+}
 
 
 var buscaVariavel(Pilha **p1,Tokens **aux){
-	var x,y;
+	var x = inicializaVar(-1);
+	var y = inicializaVar(-1);
 	Pilha *p2;
+	init(&p2);
 	char flag=0;
 	while(!isEmpty(*p1) && !flag){
 		pop(&*p1,&x);
@@ -147,8 +167,7 @@ var buscaVariavel(Pilha **p1,Tokens **aux){
 	}
 	if(flag)
 		return x;
-	x.terminal=-1;
-	return x;
+	return inicializaVar(-1);
 }
 
 char compara(var var1, var var2,char comparador[]){
@@ -229,7 +248,8 @@ void atribui(var *var, int sinal, Tokens **aux){
 }
 
 char If(Pilha **p, Tokens **aux, char *flag) {
-    var var1, var2;
+    var var1 = inicializaVar(-1);
+	var var2 = inicializaVar(-1);
     int num;
     float numf;
     char condicao1, condicao2;
@@ -257,17 +277,17 @@ char If(Pilha **p, Tokens **aux, char *flag) {
                             			var2 = buscaVariavel(&*p, &*aux);
 		                                atribui(&var2, -1, &*aux );
 			                        }else
-			                        	*flag=-1;
+			                        	*flag=1;
 								}else{
 									var2 = buscaVariavel(&*p, &*aux);
                             		atribui(&var2, 1, &*aux );
                             	}
                 			}else
-                				*flag=-1;
+                				*flag=1;
                 		}else
-							*flag=-1;
+							*flag=1;
 					}else 
-						*flag=-1;
+						*flag=1;
 				}else{
 					var1 = buscaVariavel(&*p, &*aux);
                     atribui(&var1, 1, &*aux );
@@ -282,15 +302,15 @@ char If(Pilha **p, Tokens **aux, char *flag) {
                         			var2 = buscaVariavel(&*p, &*aux);
 	                                atribui(&var2, -1, &*aux );
 		                        }else
-		                        	*flag=-1;
+		                        	*flag=1;
 							}else{
 								var2 = buscaVariavel(&*p, &*aux);
                         		atribui(&var2, 1, &*aux );
 							}
             			}else
-            				*flag=-1;
+            				*flag=1;
             		}else
-						*flag=-1;			
+						*flag=1;			
 				}
 				condicao1 = compara(var1,var2,comparador);
 				//aqui comeca a condicao 2
@@ -316,17 +336,17 @@ char If(Pilha **p, Tokens **aux, char *flag) {
 			                            			var2 = buscaVariavel(&*p, &*aux);
 					                                atribui(&var2, -1, &*aux );
 						                        }else
-						                        	*flag=-1;
+						                        	*flag=1;
 											}else{
 												var2 = buscaVariavel(&*p, &*aux);
 			                            		atribui(&var2, 1, &*aux );
 			                            	}
 			                			}else
-			                				*flag=-1;
+			                				*flag=1;
 			                		}else
-										*flag=-1;
+										*flag=1;
 								}else 
-									*flag=-1;
+									*flag=1;
 							}else{
 								var1 = buscaVariavel(&*p, &*aux);
 			                    atribui(&var1, 1, &*aux );
@@ -338,18 +358,18 @@ char If(Pilha **p, Tokens **aux, char *flag) {
 			                        	if (strcmp((*aux)->token, "!") == 0) {
 			                        		*aux = (*aux)->prox;
 			                        		if (*aux != NULL) {
-			                        			var1 = buscaVariavel(&*p, &*aux);
+			                        			var2 = buscaVariavel(&*p, &*aux);
 				                                atribui(&var2, -1, &*aux );
 					                        }else
-					                        	*flag=-1;
+					                        	*flag=1;
 										}else{
 											var2 = buscaVariavel(&*p, &*aux);
 			                        		atribui(&var2, 1,&*aux );
 										}
 			            			}else
-			            				*flag=-1;
+			            				*flag=1;
 			            		}else
-									*flag=-1;			
+									*flag=1;			
 							}	
 							condicao2 = compara(var1,var2,comparador);
 							if(strcmp(logico,"&&")==0)
@@ -360,7 +380,7 @@ char If(Pilha **p, Tokens **aux, char *flag) {
 								*flag=1;
 						}else 
 							*flag=1;
-					}else if(strcmp((*aux)->token,")"))
+					}else if(strcmp((*aux)->token,")")==0)
 							return condicao1;
 					else
 						*flag=1;
@@ -376,74 +396,134 @@ char If(Pilha **p, Tokens **aux, char *flag) {
 }
 
 
-var declaracao(Tokens **aux,char *flag){
-	var variavel;
+var declaracao(Tokens **aux,char *flag,Pilha *p){
+	var variavel = inicializaVar(0);
+	var teste = inicializaVar(-1);
 	//mudar verificacao de int ou float ou string 
-	variavel.terminal=0;
-	strcpy(variavel.valorString, "");
-	strcpy(variavel.nome, "");
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
-		strcpy(variavel.nome,(*aux)->token);
-		*aux=(*aux)->prox;
-		if(*aux!=NULL){
-			if((*aux)->token[0]=='='){
-				*aux=(*aux)->prox;
-				//tem que verificar se é negativo
-				if(*aux!=NULL){
-					if((*aux)->token[0]=='-'){
-						*aux=(*aux)->prox;
-						if(*aux!=NULL){
+		teste = buscaVariavel(&p,&*aux);
+		if(strcmp(teste.nome,(*aux)->token)!=0){
+			strcpy(variavel.nome,(*aux)->token);
+			*aux=(*aux)->prox;
+			if(*aux!=NULL){
+				if((*aux)->token[0]=='='){
+					*aux=(*aux)->prox;
+					//tem que verificar se é negativo
+					if(*aux!=NULL){
+						if((*aux)->token[0]=='-'){
+							*aux=(*aux)->prox;
+							if(*aux!=NULL){
+								if(Inteiro((*aux)->token)){
+									variavel.valorInt=-converteInt((*aux)->token);
+									variavel.terminal=1;
+								}
+								/*
+								if((*aux)->token->terminal = 1){
+									converteInt((*aux)->token)
+								}
+								else if ((*aux)->token->terminal = 2){
+									converteFloat((*aux)->token)
+								}
+								*/
+								else if(Float((*aux)->token)){
+									variavel.valorFloat=-converteFloat((*aux)->token);
+									variavel.terminal=2;
+								}
+							}else
+								*flag=1;
+						}else{
 							if(Inteiro((*aux)->token)){
-								variavel.valorInt=-converteInt((*aux)->token);
+								variavel.valorInt=converteInt((*aux)->token);
 								variavel.terminal=1;
 							}
-							/*
-							if((*aux)->token->terminal = 1){
-								converteInt((*aux)->token)
-							}
-							else if ((*aux)->token->terminal = 2){
-								converteFloat((*aux)->token)
-							}
-							*/
 							else if(Float((*aux)->token)){
-								variavel.valorFloat=-converteFloat((*aux)->token);
+								variavel.valorFloat=converteFloat((*aux)->token);
 								variavel.terminal=2;
 							}
-						}else
-							*flag=1;
-					}else{
-						if(Inteiro((*aux)->token)){
-							variavel.valorInt=converteInt((*aux)->token);
-							variavel.terminal=1;
+							else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
+								*aux=(*aux)->prox;
+								variavel.terminal=3;
+								while((*aux)->token[0]!='"' && flag && (*aux)->token[0]!=39){
+									if(*aux!=NULL){
+										strcat(variavel.valorString,(*aux)->token);
+										*aux=(*aux)->prox;
+										if((*aux)->token[0]!=39 || (*aux)->token[0]!='"' || *aux!=NULL)
+											strcat(variavel.valorString," ");
+									} else
+										*flag=1;
+								}
+							}	
 						}
-						else if(Float((*aux)->token)){
-							variavel.valorFloat=converteFloat((*aux)->token);
-							variavel.terminal=2;
-						}
-						else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
-							*aux=(*aux)->prox;
-							variavel.terminal=3;
-							while((*aux)->token[0]!='"' && flag && (*aux)->token[0]!=39){
-								if(*aux!=NULL){
-									strcat(variavel.valorString,(*aux)->token);
-									*aux=(*aux)->prox;
-									if((*aux)->token[0]!=39 || (*aux)->token[0]!='"' || *aux!=NULL)
-										strcat(variavel.valorString," ");
-								} else
-									flag=0;
-							}
-						}	
-					}
+					}else
+						*flag=1;
 				}else
 					*flag=1;
-			}else
-				*flag=1;
-		}
+			}
+		}else 
+			*flag=1;
 	}else 
 		*flag=1;
 	return variavel;
 }
+
+void buscaFuncao(PilhaF **pf1,char *token,char *function){
+	char str1[20], str2[20];
+	PilhaF *pf2;
+	init(&pf2);
+	char flag=0;
+	while(!isEmptyf(*p1) && !flag){
+		popF(&*pf1,str1);
+		if(strcmp(str1,token)==0){
+			flag=1;
+		}
+		pushF(&pf2,str1);
+	}
+	while(!isEmpty(p2)){
+		popF(&pf2,str2);
+		pushF(&*pf1,str2);
+	}
+	if(flag)
+		strcpy(function,str1);
+	else
+		strcpy(function,"");
+}
+
+
+void function(Pilha **p,Tokens **aux,char **flag,PilhaF **pf){
+	var teste = inicializaVar(-1);
+	*aux=(*aux)->prox;
+	if(*aux!=NULL){
+		pushF(&*pf,(*aux)->token);
+		if(strcmp((*aux)->token,"(")==0){
+			while(strcmp((*aux)->token,")")==0){
+				*aux=(*aux)->prox;
+				if(*aux!=NULL){
+					if(strcmp((*aux)->token,"var")==0 || strcmp((*aux)->token,"let")==0){
+						*aux=(*aux)->prox;
+						if(*aux!=NULL){
+							teste = buscaVariavel(&*p,&*aux);
+							if(strcmp(teste.nome,(*aux)->token)!=0){
+								*aux=(*aux)->prox;
+								if(*aux!=NULL){
+									if(strcmp((*aux)->token,",")!=0)
+										*flag=1;
+								}else
+									*flag=1;
+							}else 
+								*flag=1;
+						} else
+							*flag=1;
+					}
+				}else
+					*flag=1;
+			}
+		}else
+			*flag=1;
+	}else 
+		*flag=1;
+}
+
 
 
 
@@ -453,7 +533,7 @@ void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
 	//[console.log]->[(]->["]->[conteudo]
 	*aux=(*aux)->prox->prox->prox;	
 	if(*aux!=NULL){
-		while((*aux)->token[0]!='"' && (*aux)->token[0]!=39){
+		while((*aux)->token[0]!='"' && flag && (*aux)->token[0]!=39){
 			adicionarToken(*linha,(*aux)->token);
 			*aux=(*aux)->prox;
 		}

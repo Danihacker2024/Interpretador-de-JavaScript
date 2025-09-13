@@ -1,5 +1,11 @@
 let a = 10;
-let b = 10;
+let b = 18;
 
-console.log("a = ", a)
-console.log("b = ", b)
+
+if(a==10 && b == 18){
+	let b=5;
+} else if(a==10) {
+	let x=7;
+} if(a==10){
+	let a=70;
+}

@@ -73,7 +73,7 @@ void Menu2(){
     gotoxy(3,21);
     printf("[F10] Mostrar tela");
     gotoxy(3,22);
-    printf("[ESC] - Sair");
+    printf("[ESC] - Voltar");
 }
 
 
