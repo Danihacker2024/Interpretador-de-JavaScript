@@ -106,8 +106,10 @@ Linha *leArq(){
 }
 
 Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
+	char flagBreak=0;
 	var variavel;
 	Linha *Local;
+	LinhaF *funcao;
 	LinhaF *linhaF = NULL;
 	var testeV = inicializaVar(-1);
 	char achou=0;
@@ -119,7 +121,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 	int y=6;
 	while(linha!=NULL && !flag.erro){
 		aux = linha->pTokens;
-		while(aux!=NULL && !flag.erro){
+		while(aux!=NULL && !flag.erro && !flagBreak){
 			if(flag.executa){
 				if(strcmp(aux->token,"console.log")==0){
 					consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
@@ -142,28 +144,35 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				} if(strcmp(aux->token,"function")==0){
 					function(&*p,&aux,&flag.erro,&linhaF);
 					flag.executa=0;
+						
 				} 
 				testeV = buscaVariavel(&*p,&aux);
 				if(strcmp(testeV.nome,aux->token)==0){
 					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
 				}
 				//chamada de funcao
-				buscaFuncao(&linhaF,aux->token);
-				if(linhaF!=NULL){
+				funcao = buscaFuncao(linhaF, aux->token);
+				if(funcao!=NULL){
 					//verifica variaveis dentro da chamada antes de ir pra linha da funcao
 					aux=aux->prox;
 					if(aux!=NULL){
 						if(strcmp(aux->token,"(")==0){
-							chamaFuncao(linhaF,&aux,&flag.erro,&*p);
+							chamaFuncao(funcao,&aux,&flag.erro,&*p);
 							Local=linha;
 							while(linha!=NULL && !flag.funcao){
 								linha=linha->ant;
 								aux=linha->pTokens;
-								aux=aux->prox;
 								if(aux!=NULL){
-									if(strcmp(aux->token,linhaF->nomeFunc)==0){
-										flag.funcao=1;
-										linha=linha->prox;		
+									aux=aux->prox;
+									if(aux!=NULL){
+										if(strcmp(aux->token,linhaF->nomeFunc)==0){
+											flag.funcao=1;
+											//while(aux->prox!=NULL)
+												//aux=aux->prox;
+											//linha=linha->prox;
+											//aux=linha->pTokens;
+											flagBreak=1;		
+										}
 									}
 								}
 							}
@@ -203,6 +212,8 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 		}
 		if(linha!=NULL)
 			linha=linha->prox;
+		if(flagBreak)
+			flagBreak=0;
 	}
 	if(flag.erro){
 		Menu2();
@@ -220,7 +231,7 @@ Pilha *MemoriaRAM(Pilha *p){
 	int y=6;   
 	Menu2();
 	gotoxy(28,y);
-	printf("&\tidentificador\tvalor\tponteiro");
+	printf("&\tidentificador\tvalor\tponteiro\tterminal");
 	y++;
 	while(!isEmpty(p)){
 		pop(&p,&aux);
@@ -234,7 +245,8 @@ Pilha *MemoriaRAM(Pilha *p){
 			printf("%s\t",aux.valorString);
 		else
 			printf("-\t");
-		printf("[NULL]");
+		printf("[NULL]\t");
+		printf("\t%d",aux.terminal);
 		y++;
 		push(&p2,aux);
 	}

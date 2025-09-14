@@ -476,7 +476,7 @@ void function(Pilha **p,Tokens **aux,char *flag, LinhaF **linha){
 						var teste = inicializaVar(-1);
 						strcpy(teste.nome, (*aux)->token);
 						push(&*p, teste); 
-						adicionarTokenF(*linha,teste);
+						adicionarTokenF(&*linha,teste);
 						*aux=(*aux)->prox;
 					    if (*aux != NULL && strcmp((*aux)->token, ",") == 0) {
 					        *aux = (*aux)->prox; 
@@ -511,12 +511,19 @@ void atualizaVariavel(Pilha **p, var variavel){
 
 void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 	TokensF *auxf = linha->pTokens;
-	var variavel = inicializaVar(0);
+	var variavel; 
 	while(*aux != NULL && strcmp((*aux)->token,")")!=0){
 		var temp = inicializaVar(-1);
 		strcpy(temp.nome,auxf->var.nome);
-		variavel = buscaVariavel(&*p,&*aux);
-		if(variavel.terminal!=-1){
+		if(*aux!=NULL){
+			*aux=(*aux)->prox;
+			if((*aux)->token[0]=='"' || (*aux)->token[0]==39){
+				if(*aux!=NULL){
+					*aux=(*aux)->prox;
+				}else 
+					*flag=1;
+			}
+			variavel = buscaVariavel(&*p,&*aux);
 			if(variavel.terminal==1){
 				temp.valorInt=variavel.valorInt;
 				temp.terminal=1;
@@ -525,37 +532,35 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 				temp.valorFloat=variavel.valorFloat;
 				temp.terminal=2;
 			}
-			else{
+			else if(variavel.terminal==3){
 				strcpy(temp.valorString,variavel.valorString);
 				temp.terminal=3;
+			} else{
+				if(Inteiro((*aux)->token)){
+					temp.valorInt = converteInt((*aux)->token);
+					temp.terminal=1;
+				} else if(Float((*aux)->token)){
+					temp.valorFloat = converteFloat((*aux)->token);
+					temp.terminal=2;
+				} else {
+					temp.terminal=3;
+				    while(*aux!=NULL && (*aux)->token[0]!='"' && (*aux)->token[0]!=39) {
+				        strcat(temp.valorString, (*aux)->token); 
+				        *aux = (*aux)->prox;                     
+				        if ((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL) {
+				            strcat(temp.valorString, " ");
+				        }
+				    }
+				}
 			}
-		}else{
-			if(Inteiro((*aux)->token)){
-				temp.valorInt = converteInt((*aux)->token);
-				temp.terminal=1;
-			} else if(Float((*aux)->token)){
-				temp.valorFloat = converteFloat((*aux)->token);
-				temp.terminal=2;
-			} else {
-				*aux=(*aux)->prox;
-				temp.terminal=3;
-			    while(*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39 && !*flag) {
-			        strcat(temp.valorString, (*aux)->token); 
-			        *aux = (*aux)->prox;                     
-			        if (*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39) {
-			            strcat(temp.valorString, " ");
-			        }
-			    }
-			    if (*aux == NULL) {
-			        *flag = 1; // Sinaliza erro de sintaxe
-			    }
-			}
-		}
-		atualizaVariavel(&*p, temp); 
-		auxf=auxf->prox;
-		*aux = (*aux)->prox;
-		if(*aux != NULL && strcmp((*aux)->token, ",") == 0)
-			*aux = (*aux)->prox;
+			atualizaVariavel(&*p, temp); 
+			    auxf = auxf->prox;
+			if(*aux != NULL && strcmp((*aux)->token, ",") == 0)
+				*aux = (*aux)->prox;
+			if (*aux != NULL)
+	    		*aux = (*aux)->prox;
+    	}else 
+    		*flag=1;
 	}
 }
 

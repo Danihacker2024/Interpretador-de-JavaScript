@@ -26,12 +26,14 @@ void NovaLinhaF(LinhaF **linha,char *nomeF){
 	(*linha)->ant=NULL;
 	(*linha)->prox=NULL;
 	strcpy((*linha)->nomeFunc,nomeF);
+	//printf("%s",(*linha)->nomeFunc);
+	//getch();
 }
 
-void NovoTokenF(TokensF **novo, var var){
+void NovoTokenF(TokensF **novo, var variavel){
 	*novo=(TokensF*)malloc(sizeof(TokensF));
 	(*novo)->prox=NULL;
-	(*novo)->var=var;
+	(*novo)->var=variavel;
 }
 
 void adicionarLinhaF(LinhaF **inicio,char *nomeF){
@@ -57,19 +59,20 @@ LinhaF *buscaUltimaLinhaF(LinhaF *inicio){
 	return aux;
 }
 
-void buscaFuncao(LinhaF **linha, char *nomeF){
-	while(*linha!=NULL && strcmp((*linha)->nomeFunc,nomeF)!=0)
-		*linha=(*linha)->prox;
+LinhaF* buscaFuncao(LinhaF *linha, char *nomeF) {
+    while(linha != NULL && strcmp(linha->nomeFunc, nomeF) != 0)
+        linha = linha->prox;
+    return linha; 
 }
 
 
-void adicionarTokenF(LinhaF *linha, var var){
+void adicionarTokenF(LinhaF **linha, var var){
 	TokensF *novo, *aux;
 	NovoTokenF(&novo,var);
-	if(linha->pTokens==NULL)
-		linha->pTokens=novo;
+	if((*linha)->pTokens==NULL)
+		(*linha)->pTokens=novo;
 	else{
-		aux=linha->pTokens;
+		aux=(*linha)->pTokens;
 		while(aux->prox!=NULL)
 			aux=aux->prox;
 		aux->prox=novo;
