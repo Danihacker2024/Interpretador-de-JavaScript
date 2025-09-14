@@ -6,6 +6,7 @@
 #include "PilhaVar.h"
 #include "ListaDeListasToken.h"
 #include "ListaDeListasFunc.h"
+#include "ListaGen.h"
 
 struct flag{
 	char erro;
@@ -562,6 +563,40 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
     	}else 
     		*flag=1;
 	}
+}
+
+
+ListaGen *criaLista(Tokens **aux, Pilha **p, char *flag){
+	var x = inicializaVar(-1);
+	ListaGen *L = NULL;
+	if (*aux == NULL) {
+        *flag = 1;
+        return NULL;
+    }
+	x = buscaVariavel(&*p,&*aux);
+	if(x.terminal!=-1){
+		L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));		
+	} else {
+		if(Inteiro((*aux)->token)){
+			x.terminal=1;
+			x.valorInt=converteInt((*aux)->token);
+			L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));
+		} else if(Float((*aux)->token)){
+			x.terminal=2;
+			x.valorFloat=converteFloat((*aux)->token);
+			L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));
+		} else if(strcmp((*aux)->token,"(")==0){
+ 			*aux = (*aux)->prox; 
+        	L = Cons(inicializaVar(-1), criaLista(aux, &*p, &*flag), criaLista(&(*aux)->prox, &*p, &*flag));
+		} else if(strcmp((*aux)->token,")")==0){
+				return NULL;
+		} else {
+			x.terminal=3;
+			strcpy(x.valorString,(*aux)->token);
+			L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));
+		}
+	}
+	return L;
 }
 
 

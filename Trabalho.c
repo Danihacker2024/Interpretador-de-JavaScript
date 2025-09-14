@@ -149,6 +149,23 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 				testeV = buscaVariavel(&*p,&aux);
 				if(strcmp(testeV.nome,aux->token)==0){
 					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+					aux=aux->prox;
+					if(aux!=NULL){
+						if(strcmp(aux->token,"=")==0){
+							aux=aux->prox;
+							if(aux!=NULL){
+								if((*aux)->token[0]!='"' || (*aux)->token[0]!=39){
+									ListaGen *L = criaLista(&aux, &*p, &flag.erro);
+									testeV = calculaLista(&L);
+									atualizaVariavel(&*p,testeV);
+								} else{
+									//atribuicao de string
+								}
+							}else
+								flag.erro=1;
+						}	
+					}
+					
 				}
 				//chamada de funcao
 				funcao = buscaFuncao(linhaF, aux->token);

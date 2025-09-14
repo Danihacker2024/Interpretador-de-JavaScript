@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "PilhaVar.h"
 
 struct reg_lista
 {
@@ -11,35 +12,35 @@ struct reg_lista
 };
 union info_lista
 {
-	char info[100];
 	struct reg_lista lista;
 };
 
 struct listagen
 {
-	char terminal;
+	var info;
+	//char terminal;
 	union info_lista no;
 };typedef struct listagen ListaGen;
-
-ListaGen *CriaT(char *info)
+/*
+ListaGen *CriaT(var info)
 {
 	ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
 	L->terminal = 1;
-	strcpy(L->no.info, info);
+	L->no.info=info;
 	return L;
-}
+}*/
 
 char Nula(ListaGen *L)
 {
 	return L==NULL;
 }
-
+/*
 char Atomo(ListaGen *L)
 {
 	return !Nula(L) && L->terminal;
-}
+}*/
 
-ListaGen *Cons(ListaGen *H, ListaGen *T)
+ListaGen *Cons(var var, ListaGen *H, ListaGen *T)
 {
 	if (Atomo(T))
 	{
@@ -49,7 +50,8 @@ ListaGen *Cons(ListaGen *H, ListaGen *T)
 	else
 	{
 		ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
-		L->terminal = 0;
+		//L->terminal = 0;
+		L->info=var;
 		L->no.lista.cabeca = H;
 		L->no.lista.cauda = T;
 		return L;
