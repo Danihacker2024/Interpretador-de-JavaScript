@@ -5,48 +5,35 @@
 #include <string.h>
 #include "PilhaVar.h"
 
-struct reg_lista
+union tipo
 {
-	struct listagen *cabeca;
-	struct listagen *cauda;
-};
-union info_lista
-{
-	struct reg_lista lista;
+	float valor;
+	char operador[3];
+	char funcao[20];
 };
 
 struct listagen
 {
-	var info;
-	//char terminal;
-	union info_lista no;
+	char terminal;
+	union tipo info;
+	struct listagen *cabeca,*cauda;
+
 };typedef struct listagen ListaGen;
-/*
-ListaGen *CriaT(var info)
-{
-	ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
-	L->terminal = 1;
-	L->no.info=info;
-	return L;
-}*/
+
 
 char Nula(ListaGen *L)
 {
 	return L==NULL;
 }
-/*
-char Atomo(ListaGen *L)
-{
-	return !Nula(L) && L->terminal;
-}*/
 
-ListaGen *Cons(var var, ListaGen *H, ListaGen *T)
+
+ListaGen *Cons(tipo tipo, ListaGen *H, ListaGen *T, char terminal)
 {
 	ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
-	//L->terminal = 0;
-	L->info=var;
-	L->no.lista.cabeca = H;
-	L->no.lista.cauda = T;
+	L->terminal = terminal;
+	L->tipo=tipo;
+	L->cabeca = H;
+	L->cauda = T;
 	return L;
 
 }
@@ -59,7 +46,7 @@ ListaGen *Head(ListaGen *L)
 		return NULL;
 	}
 	else
-		return L->no.lista.cabeca;
+		return L->cabeca;
 }
 
 ListaGen *Tail(ListaGen *L)
@@ -70,5 +57,5 @@ ListaGen *Tail(ListaGen *L)
 		return NULL;
 	}
 	else
-		return L->no.lista.cauda;
+		return L->cauda;
 }
