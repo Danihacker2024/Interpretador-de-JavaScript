@@ -42,25 +42,18 @@ char Atomo(ListaGen *L)
 
 ListaGen *Cons(var var, ListaGen *H, ListaGen *T)
 {
-	if (Atomo(T))
-	{
-		printf("Cons: Segundo arqumento nao pode ser Atomo!");
-		return NULL;
-	}
-	else
-	{
-		ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
-		//L->terminal = 0;
-		L->info=var;
-		L->no.lista.cabeca = H;
-		L->no.lista.cauda = T;
-		return L;
-	}
+	ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
+	//L->terminal = 0;
+	L->info=var;
+	L->no.lista.cabeca = H;
+	L->no.lista.cauda = T;
+	return L;
+
 }
 
 ListaGen *Head(ListaGen *L)
 {
-	if (Nula(L) || Atomo(L))
+	if (Nula(L))
 	{
 		printf("Head: argumento deve ser lista n o vazia!");
 		return NULL;
@@ -71,7 +64,7 @@ ListaGen *Head(ListaGen *L)
 
 ListaGen *Tail(ListaGen *L)
 {
-	if (Nula(L) || Atomo(L))
+	if (Nula(L))
 	{
 		printf("Tail: argumento deve ser lista n o vazia!");
 		return NULL;

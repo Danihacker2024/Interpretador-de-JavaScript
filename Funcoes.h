@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "PilhaVar.h"
 #include "ListaDeListasToken.h"
 #include "ListaDeListasFunc.h"
@@ -599,7 +600,7 @@ ListaGen *criaLista(Tokens **aux, Pilha **p, char *flag){
 
 void profundidade(ListaGen **aux){
     if(!Nula(*aux)){
-        while(Head(*aux) == Nula(*aux))
+        while(Nula(Head(*aux)))
             *aux = Tail(*aux);
 
         if(!Nula(*aux)){
@@ -616,9 +617,9 @@ var calcula(ListaGen **L, char *flag){
 	char oper[3];
 	var y = inicializaVar(-1);
 	var res = inicializaVar(-1);
-	aux=L;
+	aux=*L;
 	profundidade(&aux);
-	while(Tail(aux)!=Nula(aux) && !*flag){
+	while(!Nula(Tail(aux)) && !*flag){
 		x = aux->info;
 		auxInicio = aux;
 		aux = Tail(aux);
@@ -628,10 +629,10 @@ var calcula(ListaGen **L, char *flag){
 		if(!Nula(aux)){
 			y = aux->info;
 			if(strcmp(oper,"+")==0){
-				if(x.terminal=1 && y.terminal=1){
+				if(x.terminal==1 && y.terminal==1){
 					res.terminal=1;
-					res.valorInt=x.valorInt+x.valorInt;
-				} else if(x.terminal=2 || y.terminal=2){
+					res.valorInt=x.valorInt+y.valorInt;
+				} else if(x.terminal==2 || y.terminal==2){
 					res.terminal=2;
 					if(x.terminal=1){
 						res.valorFloat=x.valorInt+y.valorFloat;
@@ -642,11 +643,66 @@ var calcula(ListaGen **L, char *flag){
 					}
 				}
 			}else if(strcmp(oper,"-")==0){
-				
+				if(x.terminal==1 && y.terminal==1){
+					res.terminal=1;
+					res.valorInt=x.valorInt-y.valorInt;
+				} else if(x.terminal==2 || y.terminal==2){
+					res.terminal=2;
+					if(x.terminal=1){
+						res.valorFloat=x.valorInt-y.valorFloat;
+					}else if(y.terminal=1){
+						res.valorFloat=x.valorFloat-y.valorInt;
+					}else{
+						res.valorFloat=x.valorFloat-y.valorFloat;
+					}
+				}
+			} else if(strcmp(oper,"*")==0){
+				if(x.terminal==1 && y.terminal==1){
+					res.terminal=1;
+					res.valorInt=x.valorInt*y.valorInt;
+				} else if(x.terminal==2 || y.terminal==2){
+					res.terminal=2;
+					if(x.terminal=1){
+						res.valorFloat=x.valorInt*y.valorFloat;
+					}else if(y.terminal=1){
+						res.valorFloat=x.valorFloat*y.valorInt;
+					}else{
+						res.valorFloat=x.valorFloat*y.valorFloat;
+					}
+				}
+			} else if(strcmp(oper,"/")==0){
+				if(x.terminal==1 && y.terminal==1){
+					res.terminal=1;
+					res.valorInt=x.valorInt/y.valorInt;
+				} else if(x.terminal==2 || y.terminal==2){
+					res.terminal=2;
+					if(x.terminal=1){
+						res.valorFloat=x.valorInt/y.valorFloat;
+					}else if(y.terminal=1){
+						res.valorFloat=x.valorFloat/y.valorInt;
+					}else{
+						res.valorFloat=x.valorFloat/y.valorFloat;
+					}
+				}
+			} else if(strcmp(oper,"**")==0){
+				if(x.terminal==1 && y.terminal==1){
+					res.terminal=1;
+					res.valorInt=pow(x.valorInt,y.valorInt);
+				} else if(x.terminal==2 || y.terminal==2){
+					res.terminal=2;
+					if(x.terminal=1){
+						res.valorFloat=pow(x.valorInt,y.valorFloat);
+					}else if(y.terminal=1){
+						res.valorFloat=pow(x.valorFloat,y.valorInt);
+					}else{
+						res.valorFloat=pow(x.valorFloat,y.valorFloat);
+					}
+				}
 			}
 		} else 
 			*flag=1;
 	}
+	return res;
 }
 
 
