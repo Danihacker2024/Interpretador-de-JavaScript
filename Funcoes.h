@@ -567,37 +567,49 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 }
 
 
-ListaGen *criaLista(Tokens **aux, Pilha **p, char *flag){
+ListaGen *criaNo(Tokens **aux,Pilha **p, **flag){
 	var x = inicializaVar(-1);
-	ListaGen *L = NULL;
-	if (*aux == NULL) 
-        *flag = 1;
+	tipo Tipo = inicializaTipo();
+	ListaGen *L;
 	x = buscaVariavel(&*p,&*aux);
 	if(x.terminal!=-1){
-		L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));		
+		if(x.terminal=1){
+			Tipo.valor=x.valorInt;	
+		} else if(x.terminal=2){
+			Tipo.valor=x.valorFloat;
+		} else 
+			*flag=1;
+		L = Cons(Tipo,NULL,NULL,'V');
 	} else {
 		if(Inteiro((*aux)->token)){
-			x.terminal=1;
-			x.valorInt=converteInt((*aux)->token);
-			L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));
+			Tipo.valor = converteInt((*aux)->token);
+			L = Cons(Tipo,NULL,NULL,'V');		
 		} else if(Float((*aux)->token)){
-			x.terminal=2;
-			x.valorFloat=converteFloat((*aux)->token);
-			L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));
-		} else if(strcmp((*aux)->token,"(")==0){
- 			*aux = (*aux)->prox; 
-        	L = Cons(inicializaVar(-1), criaLista(aux, &*p, &*flag), criaLista(&(*aux)->prox, &*p, &*flag));
-		} else if(strcmp((*aux)->token,")")==0){
-				return NULL;
-		} else {
-			x.terminal=3;
-			strcpy(x.valorString,(*aux)->token);
-			L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));
+			Tipo.valor = converteFloat((*aux)->token);
+			L = Cons(Tipo,NULL,NULL,'V');
+		}else{
+			if(strcmp((*aux)->token,"Math.sqrt")==0 || strcmp((*aux)->token,"Math.abs")==0){
+				strcpy(Tipo.funcao,(*aux)->token);
+				*aux=aux->prox;
+				if(*aux!=NULL){
+					*aux=aux->prox;
+					if(*aux!=NULL){
+						L = Cons(Tipo,NULL,criaNo(&*aux,&*p),'F');
+						L=L->cauda;
+						*aux=aux->prox;
+					}else
+						*flag=1;
+				}else 
+					*flag=1;
+			} else {
+				strcpy(Tipo.operador,(*aux)->token);
+				L = Cons(Tipo,NULL,NULL,'O');
+			}
 		}
 	}
 	return L;
 }
-
+/*
 void profundidade(ListaGen **aux){
     if(!Nula(*aux)){
         while(Nula(Head(*aux)))
@@ -608,11 +620,11 @@ void profundidade(ListaGen **aux){
             profundidade(&(*aux)->no.lista.cauda);
         }
     }
-}
+}*/
 
 
-var calcula(ListaGen **L, char *flag){
-	ListaGen *aux,*auxInicio,*auxOperador;
+float calcula(ListaGen **L, char *flag){
+	ListaGen *aux;
 	var x = inicializaVar(-1);
 	char oper[3];
 	var y = inicializaVar(-1);
@@ -704,6 +716,47 @@ var calcula(ListaGen **L, char *flag){
 	}
 	return res;
 }
+
+
+float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
+	 PilhaListaGen *p1,*p2
+	 float result;
+	 init(&p1), init(&p2);
+	 listaGen *l = NULL, *atual;
+	 while((*aux)->token != NULL){
+		  if(l==NULL){
+			   l=atual=criaNo((*aux)->token, &*pVar, &*flag);
+			   push(&p2,l);
+		  }
+		  else if(strcmp((*aux)->token,"(")){
+			atual -> cauda = criaNo("0", &*pVar, &*flag);
+		    atual = atual -> cauda;
+			push(&p1,atual);
+			*aux = (*aux)->prox;
+			atual->cabeca = criaNo((*aux)->token, &*pVar, &*flag);
+			atual = atual->cabeca;
+		  }
+		  else if(strcmp((*aux)->token,")")){
+		   	pop(&p1,&atual);
+		  }
+		  else{
+			   atual->cauda = criaNo((*aux)->token, &*pVar, &*flag);
+			   atual = atual->cauda;
+		  }
+		  *aux = (*aux)->token
+	 }
+	 while(!isEmpty(p2)){
+		  pop(&p2,&atual);
+		  if(l==atual)
+		   	result = calcula(l,&*flag);
+		  else
+		   	atual -> info.valor = calcula(atual->cabeca, &*flag);
+	 }
+	 return result;
+}
+
+
+
 
 
 

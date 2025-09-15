@@ -20,6 +20,14 @@ struct listagen
 
 };typedef struct listagen ListaGen;
 
+tipo inicializaTipo(){
+	tipo Tipo;
+	Tipo.valor=0.0f;
+	Tipo.operador[0]='\0';
+	Tipo.funcao[0]='\0';
+	return Tipo;
+}
+
 
 char Nula(ListaGen *L)
 {
