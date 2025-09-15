@@ -154,7 +154,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 						if(strcmp(aux->token,"=")==0){
 							aux=aux->prox;
 							if(aux!=NULL){
-								if((*aux)->token[0]!='"' || (*aux)->token[0]!=39){
+								if(aux->token[0]!='"' || aux->token[0]!=39){
 									ListaGen *L = criaLista(&aux, &*p, &flag.erro);
 									testeV = calculaLista(&L);
 									atualizaVariavel(&*p,testeV);

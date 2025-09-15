@@ -569,10 +569,8 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 ListaGen *criaLista(Tokens **aux, Pilha **p, char *flag){
 	var x = inicializaVar(-1);
 	ListaGen *L = NULL;
-	if (*aux == NULL) {
+	if (*aux == NULL) 
         *flag = 1;
-        return NULL;
-    }
 	x = buscaVariavel(&*p,&*aux);
 	if(x.terminal!=-1){
 		L = Cons(x,NULL,criaLista(&(*aux)->prox,&*p,&*flag));		
@@ -597,6 +595,58 @@ ListaGen *criaLista(Tokens **aux, Pilha **p, char *flag){
 		}
 	}
 	return L;
+}
+
+void profundidade(ListaGen **aux){
+    if(!Nula(*aux)){
+        while(Head(*aux) == Nula(*aux))
+            *aux = Tail(*aux);
+
+        if(!Nula(*aux)){
+            profundidade(&(*aux)->no.lista.cabeca);
+            profundidade(&(*aux)->no.lista.cauda);
+        }
+    }
+}
+
+
+var calcula(ListaGen **L, char *flag){
+	ListaGen *aux,*auxInicio,*auxOperador;
+	var x = inicializaVar(-1);
+	char oper[3];
+	var y = inicializaVar(-1);
+	var res = inicializaVar(-1);
+	aux=L;
+	profundidade(&aux);
+	while(Tail(aux)!=Nula(aux) && !*flag){
+		x = aux->info;
+		auxInicio = aux;
+		aux = Tail(aux);
+		strcpy(oper,aux->info.valorString);
+		auxOperador = aux;
+		aux = Tail(aux);
+		if(!Nula(aux)){
+			y = aux->info;
+			if(strcmp(oper,"+")==0){
+				if(x.terminal=1 && y.terminal=1){
+					res.terminal=1;
+					res.valorInt=x.valorInt+x.valorInt;
+				} else if(x.terminal=2 || y.terminal=2){
+					res.terminal=2;
+					if(x.terminal=1){
+						res.valorFloat=x.valorInt+y.valorFloat;
+					}else if(y.terminal=1){
+						res.valorFloat=x.valorFloat+y.valorInt;
+					}else{
+						res.valorFloat=x.valorFloat+y.valorFloat;
+					}
+				}
+			}else if(strcmp(oper,"-")==0){
+				
+			}
+		} else 
+			*flag=1;
+	}
 }
 
 
