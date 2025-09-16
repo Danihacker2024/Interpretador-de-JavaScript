@@ -2,6 +2,7 @@
 #define FUNCOES_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "PilhaVar.h"
@@ -624,95 +625,52 @@ void profundidade(ListaGen **aux){
 
 
 float calcula(ListaGen **L, char *flag){
-	ListaGen *aux;
-	var x = inicializaVar(-1);
-	char oper[3];
-	var y = inicializaVar(-1);
-	var res = inicializaVar(-1);
-	aux=*L;
-	profundidade(&aux);
+	ListaGen *aux,*ant;
+	float x,y;
+	char func[20];
 	while(!Nula(Tail(aux)) && !*flag){
-		x = aux->info;
-		auxInicio = aux;
-		aux = Tail(aux);
-		strcpy(oper,aux->info.valorString);
-		auxOperador = aux;
-		aux = Tail(aux);
-		if(!Nula(aux)){
-			y = aux->info;
-			if(strcmp(oper,"+")==0){
-				if(x.terminal==1 && y.terminal==1){
-					res.terminal=1;
-					res.valorInt=x.valorInt+y.valorInt;
-				} else if(x.terminal==2 || y.terminal==2){
-					res.terminal=2;
-					if(x.terminal=1){
-						res.valorFloat=x.valorInt+y.valorFloat;
-					}else if(y.terminal=1){
-						res.valorFloat=x.valorFloat+y.valorInt;
-					}else{
-						res.valorFloat=x.valorFloat+y.valorFloat;
-					}
+		aux=*L;
+		//colocar como funcao
+		if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+			ant=aux;
+			aux=Tail(aux);
+			x=aux->info.valor
+			x=sqrt(x);
+			ant->cauda=aux->cauda;
+			free(aux);
+			aux=ant;
+			aux->info.valor=x;
+		} else if(strcmp(aux->info.funcao,"Math.abs")==0){
+			ant=aux;
+			aux=Tail(aux);
+			x=aux->info.valor
+			x=abs(x);
+			ant->cauda=aux->cauda;
+			free(aux);
+			aux=ant;
+			aux->info.valor=x;
+		}else{
+			x=*L->info.valor;
+			aux=Tail(aux);
+			ant=aux;
+			aux=Tail(aux);
+			if(strcmp(ant->info.operador,"+")==0){
+				if(aux->terminal=='V'){
+					y=aux->info.valor;
+					x+=y;
+					*L->info.valor=x;
+					*L->cauda=aux->cauda;
+					free(aux);
+					free(ant);
 				}
-			}else if(strcmp(oper,"-")==0){
-				if(x.terminal==1 && y.terminal==1){
-					res.terminal=1;
-					res.valorInt=x.valorInt-y.valorInt;
-				} else if(x.terminal==2 || y.terminal==2){
-					res.terminal=2;
-					if(x.terminal=1){
-						res.valorFloat=x.valorInt-y.valorFloat;
-					}else if(y.terminal=1){
-						res.valorFloat=x.valorFloat-y.valorInt;
-					}else{
-						res.valorFloat=x.valorFloat-y.valorFloat;
-					}
+				else{
+					strcpy(func,aux->info.funcao);
+					//criar uma funcao para fazer funcao
 				}
-			} else if(strcmp(oper,"*")==0){
-				if(x.terminal==1 && y.terminal==1){
-					res.terminal=1;
-					res.valorInt=x.valorInt*y.valorInt;
-				} else if(x.terminal==2 || y.terminal==2){
-					res.terminal=2;
-					if(x.terminal=1){
-						res.valorFloat=x.valorInt*y.valorFloat;
-					}else if(y.terminal=1){
-						res.valorFloat=x.valorFloat*y.valorInt;
-					}else{
-						res.valorFloat=x.valorFloat*y.valorFloat;
-					}
-				}
-			} else if(strcmp(oper,"/")==0){
-				if(x.terminal==1 && y.terminal==1){
-					res.terminal=1;
-					res.valorInt=x.valorInt/y.valorInt;
-				} else if(x.terminal==2 || y.terminal==2){
-					res.terminal=2;
-					if(x.terminal=1){
-						res.valorFloat=x.valorInt/y.valorFloat;
-					}else if(y.terminal=1){
-						res.valorFloat=x.valorFloat/y.valorInt;
-					}else{
-						res.valorFloat=x.valorFloat/y.valorFloat;
-					}
-				}
-			} else if(strcmp(oper,"**")==0){
-				if(x.terminal==1 && y.terminal==1){
-					res.terminal=1;
-					res.valorInt=pow(x.valorInt,y.valorInt);
-				} else if(x.terminal==2 || y.terminal==2){
-					res.terminal=2;
-					if(x.terminal=1){
-						res.valorFloat=pow(x.valorInt,y.valorFloat);
-					}else if(y.terminal=1){
-						res.valorFloat=pow(x.valorFloat,y.valorInt);
-					}else{
-						res.valorFloat=pow(x.valorFloat,y.valorFloat);
-					}
-				}
+			}else{ //outros operadores
+				
 			}
-		} else 
-			*flag=1;
+		}
 	}
 	return res;
 }
