@@ -623,33 +623,44 @@ void profundidade(ListaGen **aux){
     }
 }*/
 
+int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
+	x=(*aux)->info.valor
+	x=sqrt(x);
+	(*ant)->cauda=(*aux)->cauda;
+	free(*aux);
+	*aux=*ant;
+	(*aux)->info.valor=x;
+	return x;	
+}
+
+int calculaAbs(ListaGen **ant,ListaGen **aux,int x){
+	x=(*aux)->info.valor
+	x=abs(x);
+	(*ant)->cauda=(*aux)->cauda;
+	free(*aux);
+	*aux=*ant;
+	*aux->info.valor=x;
+	return x;
+}
+
 
 float calcula(ListaGen **L, char *flag){
-	ListaGen *aux,*ant;
-	float x,y;
-	char func[20];
+	ListaGen *aux,*ant,*ant2;
+	float x=0,y;
 	while(!Nula(Tail(aux)) && !*flag){
 		aux=*L;
 		//colocar como funcao
 		if(strcmp(aux->info.funcao,"Math.sqrt")==0){
 			ant=aux;
 			aux=Tail(aux);
-			x=aux->info.valor
-			x=sqrt(x);
-			ant->cauda=aux->cauda;
-			free(aux);
-			aux=ant;
-			aux->info.valor=x;
-		} else if(strcmp(aux->info.funcao,"Math.abs")==0){
+			x+=calculaSqrt(&ant, &aux, x);
+		}
+		else if(strcmp(aux->info.funcao,"Math.abs")==0){
 			ant=aux;
 			aux=Tail(aux);
-			x=aux->info.valor
-			x=abs(x);
-			ant->cauda=aux->cauda;
-			free(aux);
-			aux=ant;
-			aux->info.valor=x;
-		}else{
+			x+=calculaAbs(&ant, &aux, x);
+		}
+		else{
 			x=*L->info.valor;
 			aux=Tail(aux);
 			ant=aux;
@@ -664,10 +675,21 @@ float calcula(ListaGen **L, char *flag){
 					free(ant);
 				}
 				else{
-					strcpy(func,aux->info.funcao);
-					//criar uma funcao para fazer funcao
+					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+						ant2=aux;
+						y+=calculaSqrt(&ant2, &aux, x);
+					}
+					else if(strcmp(aux->info.funcao,"Math.abs")==0){
+						ant2=aux;
+						y+=calculaAbs(&ant2, &aux, x);
+					}
+					x+=y;
+					*L->info.valor=x;
+					*L->cauda=aux->cauda;
+					free(aux);
+					free(ant);
 				}
-			}else{ //outros operadores
+			}else{ 
 				
 			}
 		}
