@@ -145,7 +145,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 					function(&*p,&aux,&flag.erro,&linhaF);
 					flag.executa=0;
 						
-				}/* 
+				} 
 				testeV = buscaVariavel(&*p,&aux);
 				if(strcmp(testeV.nome,aux->token)==0){
 					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
@@ -155,8 +155,10 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 							aux=aux->prox;
 							if(aux!=NULL){
 								if(aux->token[0]!='"' || aux->token[0]!=39){
-									ListaGen *L = criaLista(&aux, &*p, &flag.erro);
-									//testeV = calcula(&L);
+									testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
+									testeV.terminal=2;
+									testeV.valorInt=0;
+									strcpy(testeV.valorString,"");
 									atualizaVariavel(&*p,testeV);
 								} else{
 									//atribuicao de string
@@ -166,7 +168,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 						}	
 					}
 					
-				}*/
+				}
 				//chamada de funcao
 				funcao = buscaFuncao(linhaF, aux->token);
 				if(funcao!=NULL){

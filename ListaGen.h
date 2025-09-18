@@ -20,8 +20,8 @@ struct listagen
 
 };typedef struct listagen ListaGen;
 
-tipo inicializaTipo(){
-	tipo Tipo;
+union tipo inicializaTipo(){
+	union tipo Tipo;
 	Tipo.valor=0.0f;
 	Tipo.operador[0]='\0';
 	Tipo.funcao[0]='\0';
@@ -35,11 +35,11 @@ char Nula(ListaGen *L)
 }
 
 
-ListaGen *Cons(tipo tipo, ListaGen *H, ListaGen *T, char terminal)
+ListaGen *Cons(union tipo tipo, ListaGen *H, ListaGen *T, char terminal)
 {
 	ListaGen *L = (ListaGen*)malloc(sizeof(ListaGen));
 	L->terminal = terminal;
-	L->tipo=tipo;
+	L->info=tipo;
 	L->cabeca = H;
 	L->cauda = T;
 	return L;
