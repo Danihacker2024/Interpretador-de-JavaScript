@@ -9,9 +9,9 @@
 
 
 struct pilhaGen{
-	ListaGen *info;
+	ListaGen *lista;
 	struct pilhaGen *prox;
-};typedef struct pilha PilhaGen;
+};typedef struct pilhaGen PilhaGen;
 
 void initGen(PilhaGen **p){
 	*p=NULL;
@@ -19,7 +19,7 @@ void initGen(PilhaGen **p){
 
 void pushGen(PilhaGen **p, ListaGen *aux){
 	PilhaGen *nova = (PilhaGen*)malloc(sizeof(PilhaGen));
-	nova->info = aux;
+	nova->lista = aux;
 	nova->prox = *p;
 	*p=nova;	
 }
@@ -29,20 +29,20 @@ char isEmptyGen(PilhaGen *p){
 }
 
 ListaGen *topGen(PilhaGen *p){
-	if(!isEmpty(p))
-		return p->info;
+	if(!isEmptyGen(p))
+		return p->lista;
 	return NULL;
 }
 
-void popGen(PilhaGen **p,ListaGen **info){
+void popGen(PilhaGen **p,ListaGen **lista){
 	PilhaGen *aux;
-	if(!isEmpty(*p)){	
+	if(!isEmptyGen(*p)){	
 		aux=*p;
-		*info=(*p)->info;
+		*lista=(*p)->lista;
 		*p=aux->prox;
 		free(aux);
 	}else{
-		*info=NULL;
+		*lista=NULL;
 	}
 }
 

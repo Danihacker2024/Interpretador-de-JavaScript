@@ -569,15 +569,15 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 }
 
 
-ListaGen *criaNo(Tokens **aux,Pilha **p, char **flag){
+ListaGen *criaNo(Tokens **aux,Pilha **p, char *flag){
 	var x = inicializaVar(-1);
 	union tipo Tipo = inicializaTipo();
 	ListaGen *L;
 	x = buscaVariavel(&*p,&*aux);
 	if(x.terminal!=-1){
-		if(x.terminal=1){
+		if(x.terminal==1){
 			Tipo.valor=x.valorInt;	
-		} else if(x.terminal=2){
+		} else if(x.terminal==2){
 			Tipo.valor=x.valorFloat;
 		} else 
 			*flag=1;
@@ -824,22 +824,23 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 ListaGen *l = NULL, *atual;
 	 while((*aux)->token != NULL){
 		  if(l==NULL){
-			   l=atual=criaNo((*aux)->token, &*pVar, &*flag);
+			   l=atual=criaNo(&*aux, &*pVar, &*flag);
 			   pushGen(&p2,l);
 		  }
-		  else if(strcmp((*aux)->token,"(")){
-			atual -> cauda = criaNo("0", &*pVar, &*flag);
+		  else if(strcmp((*aux)->token,"(")==0){
+		  	strcpy((*aux)->token,"0");
+			atual -> cauda = criaNo(&*aux, &*pVar, &*flag);
 		    atual = atual -> cauda;
 			pushGen(&p1,atual);
 			*aux = (*aux)->prox;
-			atual->cabeca = criaNo((*aux)->token, &*pVar, &*flag);
+			atual->cabeca = criaNo(&*aux, &*pVar, &*flag);
 			atual = atual->cabeca;
 		  }
-		  else if(strcmp((*aux)->token,")")){
+		  else if(strcmp((*aux)->token,")")==0){
 		   	popGen(&p1,&atual);
 		  }
 		  else{
-			   atual->cauda = criaNo((*aux)->token, &*pVar, &*flag);
+			   atual->cauda = criaNo(&*aux, &*pVar, &*flag);
 			   atual = atual->cauda;
 		  }
 		  *aux = (*aux)->prox;
@@ -847,9 +848,9 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 while(!isEmptyGen(p2)){
 		  popGen(&p2,&atual);
 		  if(l==atual)
-		   	result = calcula(l);
+		   	result = calcula(&l);
 		  else
-		   	atual -> info.valor = calcula(atual->cabeca);
+		   	atual -> info.valor = calcula(&(atual->cabeca));
 	 }
 	 return result;
 }
