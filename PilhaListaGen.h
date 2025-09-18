@@ -8,34 +8,34 @@
 #include "ListaGen.h"
 
 
-struct pilha{
+struct pilhaGen{
 	ListaGen *info;
-	struct pilha *prox;
-};typedef struct pilha Pilha;
+	struct pilhaGen *prox;
+};typedef struct pilha PilhaGen;
 
-void init(Pilha **p){
+void initGen(PilhaGen **p){
 	*p=NULL;
 }
 
-void push(Pilha **p, LintaGen *info){
-	Pilha *nova = (Pilha *)malloc(sizeof(Pilha));
-	nova->info = info;
+void pushGen(PilhaGen **p, ListaGen *aux){
+	PilhaGen *nova = (PilhaGen*)malloc(sizeof(PilhaGen));
+	nova->info = aux;
 	nova->prox = *p;
 	*p=nova;	
 }
 
-char isEmpty(Pilha *p){
+char isEmptyGen(PilhaGen *p){
 	return p==NULL;
 }
 
-ListaGen *top(Pilha *p){
+ListaGen *topGen(PilhaGen *p){
 	if(!isEmpty(p))
 		return p->info;
 	return NULL;
 }
 
-void pop(Pilha **p,ListaGen **info){
-	Pilha *aux;
+void popGen(PilhaGen **p,ListaGen **info){
+	PilhaGen *aux;
 	if(!isEmpty(*p)){	
 		aux=*p;
 		*info=(*p)->info;

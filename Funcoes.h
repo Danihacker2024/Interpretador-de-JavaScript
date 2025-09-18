@@ -9,6 +9,7 @@
 #include "ListaDeListasToken.h"
 #include "ListaDeListasFunc.h"
 #include "ListaGen.h"
+#include "PilhaListaGen.h"
 
 struct flag{
 	char erro;
@@ -595,9 +596,9 @@ ListaGen *criaNo(Tokens **aux,Pilha **p, char **flag){
 				if(*aux!=NULL){
 					*aux=(*aux)->prox;
 					if(*aux!=NULL){
-						L = Cons(Tipo,NULL,criaNo(&*aux,&*p),'F');
+						L = Cons(Tipo,NULL,criaNo(&*aux,&*p,&*flag),'F');
 						L=L->cauda;
-						*aux=aux->prox;
+						*aux=(*aux)->prox;
 					}else
 						*flag=1;
 				}else 
@@ -624,7 +625,7 @@ void profundidade(ListaGen **aux){
 }*/
 
 int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
-	x=(*aux)->info.valor
+	x=(*aux)->info.valor;
 	x=sqrt(x);
 	(*ant)->cauda=(*aux)->cauda;
 	free(*aux);
@@ -634,12 +635,12 @@ int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
 }
 
 int calculaAbs(ListaGen **ant,ListaGen **aux,int x){
-	x=(*aux)->info.valor
+	x=(*aux)->info.valor;
 	x=abs(x);
 	(*ant)->cauda=(*aux)->cauda;
 	free(*aux);
 	*aux=*ant;
-	*aux->info.valor=x;
+	(*aux)->info.valor=x;
 	return x;
 }
 
@@ -661,7 +662,7 @@ float calcula(ListaGen **L){
 			x+=calculaAbs(&ant, &aux, x);
 		}
 		else{
-			x=*L->info.valor;
+			x=(*L)->info.valor;
 			aux=Tail(aux);
 			ant=aux;
 			aux=Tail(aux);
@@ -669,8 +670,8 @@ float calcula(ListaGen **L){
 				if(aux->terminal=='V'){
 					y=aux->info.valor;
 					x+=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -684,8 +685,8 @@ float calcula(ListaGen **L){
 						y=calculaAbs(&ant2, &aux, x);
 					}
 					x+=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -693,8 +694,8 @@ float calcula(ListaGen **L){
 				if(aux->terminal=='V'){
 					y=aux->info.valor;
 					x-=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -708,8 +709,8 @@ float calcula(ListaGen **L){
 						y=calculaAbs(&ant2, &aux, x);
 					}
 					x-=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -717,8 +718,8 @@ float calcula(ListaGen **L){
 				if(aux->terminal=='V'){
 					y=aux->info.valor;
 					x*=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -732,8 +733,8 @@ float calcula(ListaGen **L){
 						y=calculaAbs(&ant2, &aux, x);
 					}
 					x*=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}	
@@ -741,8 +742,8 @@ float calcula(ListaGen **L){
 				if(aux->terminal=='V'){
 					y=aux->info.valor;
 					x/=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -756,17 +757,17 @@ float calcula(ListaGen **L){
 						y=calculaAbs(&ant2, &aux, x);
 					}
 					x/=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
 			} else if(strcmp(ant->info.operador,"%")==0){
 				if(aux->terminal=='V'){
 					y=aux->info.valor;
-					x%=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					x= (int)x % (int)y;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -779,9 +780,9 @@ float calcula(ListaGen **L){
 						ant2=aux;
 						y=calculaAbs(&ant2, &aux, x);
 					}
-					x%=y;
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					x= (int)x % (int)y;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -789,8 +790,8 @@ float calcula(ListaGen **L){
 				if(aux->terminal=='V'){
 					y=aux->info.valor;
 					x=pow(x,y);
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -804,8 +805,8 @@ float calcula(ListaGen **L){
 						y=calculaAbs(&ant2, &aux, x);
 					}
 					x=pow(x,y);
-					*L->info.valor=x;
-					*L->cauda=aux->cauda;
+					(*L)->info.valor=x;
+					(*L)->cauda=aux->cauda;
 					free(aux);
 					free(ant);
 				}
@@ -817,34 +818,34 @@ float calcula(ListaGen **L){
 
 
 float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
-	 PilhaListaGen *p1,*p2
+	 PilhaGen *p1,*p2;
 	 float result;
-	 init(&p1), init(&p2);
-	 listaGen *l = NULL, *atual;
+	 initGen(&p1), initGen(&p2);
+	 ListaGen *l = NULL, *atual;
 	 while((*aux)->token != NULL){
 		  if(l==NULL){
 			   l=atual=criaNo((*aux)->token, &*pVar, &*flag);
-			   push(&p2,l);
+			   pushGen(&p2,l);
 		  }
 		  else if(strcmp((*aux)->token,"(")){
 			atual -> cauda = criaNo("0", &*pVar, &*flag);
 		    atual = atual -> cauda;
-			push(&p1,atual);
+			pushGen(&p1,atual);
 			*aux = (*aux)->prox;
 			atual->cabeca = criaNo((*aux)->token, &*pVar, &*flag);
 			atual = atual->cabeca;
 		  }
 		  else if(strcmp((*aux)->token,")")){
-		   	pop(&p1,&atual);
+		   	popGen(&p1,&atual);
 		  }
 		  else{
 			   atual->cauda = criaNo((*aux)->token, &*pVar, &*flag);
 			   atual = atual->cauda;
 		  }
-		  *aux = (*aux)->token
+		  *aux = (*aux)->prox;
 	 }
-	 while(!isEmpty(p2)){
-		  pop(&p2,&atual);
+	 while(!isEmptyGen(p2)){
+		  popGen(&p2,&atual);
 		  if(l==atual)
 		   	result = calcula(l);
 		  else

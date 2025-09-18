@@ -1,4 +1,5 @@
-//Somente vamos mexer com a lista generalizada mais pra frente
+#ifndef LISTAGEN_H   
+#define LISTAGEN_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,3 +68,5 @@ ListaGen *Tail(ListaGen *L)
 	else
 		return L->cauda;
 }
+
+#endif
