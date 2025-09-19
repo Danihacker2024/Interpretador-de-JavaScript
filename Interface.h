@@ -87,7 +87,6 @@ void exibirParticipantes(void){
 	textcolor(2);
     textbackground(0);
     gotoxy(45,11);printf("Daniel Martins de Almeida Neves");
-    gotoxy(45,13);printf("Guilherme Gouveia de Oliveira e Silva");
     textcolor(0);
     textbackground(0);
     Sleep(2000);

@@ -573,245 +573,276 @@ ListaGen *criaNo(Tokens **aux,Pilha **p, char *flag){
 	var x = inicializaVar(-1);
 	union tipo Tipo = inicializaTipo();
 	ListaGen *L;
-	x = buscaVariavel(&*p,&*aux);
-	if(x.terminal!=-1){
-		if(x.terminal==1){
-			Tipo.valor=x.valorInt;	
-		} else if(x.terminal==2){
-			Tipo.valor=x.valorFloat;
-		} else 
-			*flag=1;
-		L = Cons(Tipo,NULL,NULL,'V');
-	} else {
-		if(Inteiro((*aux)->token)){
-			Tipo.valor = converteInt((*aux)->token);
-			L = Cons(Tipo,NULL,NULL,'V');		
-		} else if(Float((*aux)->token)){
-			Tipo.valor = converteFloat((*aux)->token);
+	if(*aux==NULL)
+		*flag=1;
+	else{
+		x = buscaVariavel(&*p,&*aux);
+		if(x.terminal!=-1){
+			if(x.terminal==1){
+				Tipo.valor=x.valorInt;	
+			} else if(x.terminal==2){
+				Tipo.valor=x.valorFloat;
+			} else 
+				*flag=1;
 			L = Cons(Tipo,NULL,NULL,'V');
-		}else{
-			if(strcmp((*aux)->token,"Math.sqrt")==0 || strcmp((*aux)->token,"Math.abs")==0){
-				strcpy(Tipo.funcao,(*aux)->token);
-				*aux=(*aux)->prox;
-				if(*aux!=NULL){
+		} else {
+			if(Inteiro((*aux)->token)){
+				Tipo.valor = converteInt((*aux)->token);
+				L = Cons(Tipo,NULL,NULL,'V');		
+			} else if(Float((*aux)->token)){
+				Tipo.valor = converteFloat((*aux)->token);
+				L = Cons(Tipo,NULL,NULL,'V');
+			}else{
+				if(strcmp((*aux)->token,"Math.sqrt")==0 || strcmp((*aux)->token,"Math.abs")==0){
+					strcpy(Tipo.funcao,(*aux)->token);
 					*aux=(*aux)->prox;
 					if(*aux!=NULL){
-						L = Cons(Tipo,NULL,criaNo(&*aux,&*p,&*flag),'F');
-						L=L->cauda;
 						*aux=(*aux)->prox;
-					}else
+						if(*aux!=NULL){
+							L = Cons(Tipo,NULL,criaNo(&*aux,&*p,&*flag),'F');
+							L=L->cauda;
+							*aux=(*aux)->prox;
+						}else
+							*flag=1;
+					}else 
 						*flag=1;
-				}else 
-					*flag=1;
-			} else {
-				strcpy(Tipo.operador,(*aux)->token);
-				L = Cons(Tipo,NULL,NULL,'O');
+				} else {
+					strcpy(Tipo.operador,(*aux)->token);
+					L = Cons(Tipo,NULL,NULL,'O');
+				}
 			}
 		}
 	}
 	return L;
 }
-/*
-void profundidade(ListaGen **aux){
-    if(!Nula(*aux)){
-        while(Nula(Head(*aux)))
-            *aux = Tail(*aux);
 
-        if(!Nula(*aux)){
-            profundidade(&(*aux)->no.lista.cabeca);
-            profundidade(&(*aux)->no.lista.cauda);
-        }
-    }
-}*/
 
 int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
 	x=(*aux)->info.valor;
 	x=sqrt(x);
-	(*ant)->cauda=(*aux)->cauda;
-	free(*aux);
-	*aux=*ant;
-	(*aux)->info.valor=x;
-	return x;	
+	if(!Nula((*aux)->cauda)){
+		(*ant)->cauda=(*aux)->cauda;
+		free(*aux);
+		*aux=*ant;
+		(*aux)->info.valor=x;
+		return x;
+	}
+	return -1;	
 }
 
 int calculaAbs(ListaGen **ant,ListaGen **aux,int x){
 	x=(*aux)->info.valor;
 	x=abs(x);
-	(*ant)->cauda=(*aux)->cauda;
-	free(*aux);
-	*aux=*ant;
-	(*aux)->info.valor=x;
-	return x;
+	if(!Nula((*aux)->cauda)){
+		(*ant)->cauda=(*aux)->cauda;
+		free(*aux);
+		*aux=*ant;
+		(*aux)->info.valor=x;
+		return x;
+	}
+	return -1;
 }
 
 
-float calcula(ListaGen **L){
+float calcula(ListaGen **L,char *flag){
 	ListaGen *aux,*ant,*ant2;
 	float x=0,y;
-	while(!Nula(Tail(aux))){
-		aux=*L;
+	aux=*L;
+	while(!Nula(*L)){
 		//colocar como funcao
 		if(strcmp(aux->info.funcao,"Math.sqrt")==0){
 			ant=aux;
 			aux=Tail(aux);
-			x+=calculaSqrt(&ant, &aux, x);
+			if(aux!=NULL)
+				x+=calculaSqrt(&ant, &aux, x);
+			else
+				*flag=1;
 		}
 		else if(strcmp(aux->info.funcao,"Math.abs")==0){
 			ant=aux;
 			aux=Tail(aux);
-			x+=calculaAbs(&ant, &aux, x);
+			if(aux!=NULL)
+				x+=calculaAbs(&ant, &aux, x);
+			else
+				*flag=1;	
 		}
 		else{
 			x=(*L)->info.valor;
 			aux=Tail(aux);
-			ant=aux;
-			aux=Tail(aux);
-			if(strcmp(ant->info.operador,"+")==0){
-				if(aux->terminal=='V'){
-					y=aux->info.valor;
-					x+=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-				else{
-					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
-						ant2=aux;
-						y=calculaSqrt(&ant2, &aux, x);
+			if(aux!=NULL){
+				ant=aux;
+				aux=Tail(aux);
+				if(aux!=NULL){
+					if(strcmp(ant->info.operador,"+")==0){
+						if(aux->terminal=='V'){
+							y=aux->info.valor;
+							x+=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+						}
+						else{
+							if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+								ant2=aux;
+								y=calculaSqrt(&ant2, &aux, x);
+							}
+							else if(strcmp(aux->info.funcao,"Math.abs")==0){
+								ant2=aux;
+								y=calculaAbs(&ant2, &aux, x);
+							}
+							if(y!=-1){
+								x+=y;
+								(*L)->info.valor=x;
+								(*L)->cauda=aux->cauda;
+								free(aux);
+								free(ant);
+							}else
+								*flag=1;
+						}
+					}else if(strcmp(ant->info.operador,"-")==0){ 
+						if(aux->terminal=='V'){
+							y=aux->info.valor;
+							x-=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+						}
+						else{
+							if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+								ant2=aux;
+								y=calculaSqrt(&ant2, &aux, x);
+							}
+							else if(strcmp(aux->info.funcao,"Math.abs")==0){
+								ant2=aux;
+								y=calculaAbs(&ant2, &aux, x);
+							}
+							if(y!=-1){
+							x-=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+							}else
+								*flag=1;
+						}
+					} else if(strcmp(ant->info.operador,"*")==0){
+						if(aux->terminal=='V'){
+							y=aux->info.valor;
+							x*=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+						}
+						else{
+							if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+								ant2=aux;
+								y=calculaSqrt(&ant2, &aux, x);
+							}
+							else if(strcmp(aux->info.funcao,"Math.abs")==0){
+								ant2=aux;
+								y=calculaAbs(&ant2, &aux, x);
+							}
+							if(y!=-1){
+							x*=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+							}else 
+								*flag=1;
+						}	
+					} else if(strcmp(ant->info.operador,"/")==0){
+						if(aux->terminal=='V'){
+							y=aux->info.valor;
+							x/=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+						}
+						else{
+							if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+								ant2=aux;
+								y=calculaSqrt(&ant2, &aux, x);
+							}
+							else if(strcmp(aux->info.funcao,"Math.abs")==0){
+								ant2=aux;
+								y=calculaAbs(&ant2, &aux, x);
+							}
+							if(y!=-1){
+							x/=y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+							}else{
+								*flag=1;
+							}
+						}
+					} else if(strcmp(ant->info.operador,"%")==0){
+						if(aux->terminal=='V'){
+							y=aux->info.valor;
+							x= (int)x % (int)y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+						}
+						else{
+							if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+								ant2=aux;
+								y=calculaSqrt(&ant2, &aux, x);
+							}
+							else if(strcmp(aux->info.funcao,"Math.abs")==0){
+								ant2=aux;
+								y=calculaAbs(&ant2, &aux, x);
+							}
+							if(y!=-1){
+							x= (int)x % (int)y;
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+							}else 
+								*flag=1;
+						}
+					} else if(strcmp(ant->info.operador,"**")==0){
+						if(aux->terminal=='V'){
+							y=aux->info.valor;
+							x=pow(x,y);
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+						}
+						else{
+							if(strcmp(aux->info.funcao,"Math.sqrt")==0){
+								ant2=aux;
+								y=calculaSqrt(&ant2, &aux, x);
+							}
+							else if(strcmp(aux->info.funcao,"Math.abs")==0){
+								ant2=aux;
+								y=calculaAbs(&ant2, &aux, x);
+							}
+							if(y!=-1){
+							x=pow(x,y);
+							(*L)->info.valor=x;
+							(*L)->cauda=aux->cauda;
+							free(aux);
+							free(ant);
+							}else
+								*flag=1;
+						}
 					}
-					else if(strcmp(aux->info.funcao,"Math.abs")==0){
-						ant2=aux;
-						y=calculaAbs(&ant2, &aux, x);
-					}
-					x+=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-			}else if(strcmp(ant->info.operador,"-")==0){ 
-				if(aux->terminal=='V'){
-					y=aux->info.valor;
-					x-=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-				else{
-					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
-						ant2=aux;
-						y=calculaSqrt(&ant2, &aux, x);
-					}
-					else if(strcmp(aux->info.funcao,"Math.abs")==0){
-						ant2=aux;
-						y=calculaAbs(&ant2, &aux, x);
-					}
-					x-=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-			} else if(strcmp(ant->info.operador,"*")==0){
-				if(aux->terminal=='V'){
-					y=aux->info.valor;
-					x*=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-				else{
-					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
-						ant2=aux;
-						y=calculaSqrt(&ant2, &aux, x);
-					}
-					else if(strcmp(aux->info.funcao,"Math.abs")==0){
-						ant2=aux;
-						y=calculaAbs(&ant2, &aux, x);
-					}
-					x*=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}	
-			} else if(strcmp(ant->info.operador,"/")==0){
-				if(aux->terminal=='V'){
-					y=aux->info.valor;
-					x/=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-				else{
-					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
-						ant2=aux;
-						y=calculaSqrt(&ant2, &aux, x);
-					}
-					else if(strcmp(aux->info.funcao,"Math.abs")==0){
-						ant2=aux;
-						y=calculaAbs(&ant2, &aux, x);
-					}
-					x/=y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-			} else if(strcmp(ant->info.operador,"%")==0){
-				if(aux->terminal=='V'){
-					y=aux->info.valor;
-					x= (int)x % (int)y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-				else{
-					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
-						ant2=aux;
-						y=calculaSqrt(&ant2, &aux, x);
-					}
-					else if(strcmp(aux->info.funcao,"Math.abs")==0){
-						ant2=aux;
-						y=calculaAbs(&ant2, &aux, x);
-					}
-					x= (int)x % (int)y;
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-			} else if(strcmp(ant->info.operador,"**")==0){
-				if(aux->terminal=='V'){
-					y=aux->info.valor;
-					x=pow(x,y);
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-				else{
-					if(strcmp(aux->info.funcao,"Math.sqrt")==0){
-						ant2=aux;
-						y=calculaSqrt(&ant2, &aux, x);
-					}
-					else if(strcmp(aux->info.funcao,"Math.abs")==0){
-						ant2=aux;
-						y=calculaAbs(&ant2, &aux, x);
-					}
-					x=pow(x,y);
-					(*L)->info.valor=x;
-					(*L)->cauda=aux->cauda;
-					free(aux);
-					free(ant);
-				}
-			} 
+				}else
+					*flag=1;
+			}else
+				*flag=1;
 		}
+		aux=*L;
 	}
 	return x;
 }
@@ -819,22 +850,29 @@ float calcula(ListaGen **L){
 
 float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 PilhaGen *p1,*p2;
-	 float result;
+	 float result=0.0f;
 	 initGen(&p1), initGen(&p2);
 	 ListaGen *l = NULL, *atual;
-	 while((*aux)->token != NULL){
+	 while(*aux!=NULL && (*aux)->token != NULL && !*flag){
 		  if(l==NULL){
 			   l=atual=criaNo(&*aux, &*pVar, &*flag);
-			   pushGen(&p2,l);
+			   if(!*flag)
+			   	pushGen(&p2,l);
 		  }
 		  else if(strcmp((*aux)->token,"(")==0){
-		  	strcpy((*aux)->token,"0");
+		  	(*aux)->token[0] = '0';
+			(*aux)->token[1] = '\0';	
 			atual -> cauda = criaNo(&*aux, &*pVar, &*flag);
-		    atual = atual -> cauda;
-			pushGen(&p1,atual);
-			*aux = (*aux)->prox;
-			atual->cabeca = criaNo(&*aux, &*pVar, &*flag);
-			atual = atual->cabeca;
+			if(!*flag){
+			    atual = atual -> cauda;
+				pushGen(&p1,atual);
+				*aux = (*aux)->prox;
+				if(*aux!=NULL){
+					atual->cabeca = criaNo(&*aux, &*pVar, &*flag);
+					atual = atual->cabeca;
+				}else 
+					*flag=1;
+			}
 		  }
 		  else if(strcmp((*aux)->token,")")==0){
 		   	popGen(&p1,&atual);
@@ -848,9 +886,9 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 while(!isEmptyGen(p2)){
 		  popGen(&p2,&atual);
 		  if(l==atual)
-		   	result = calcula(&l);
+		   	result = calcula(&l,&*flag);
 		  else
-		   	atual -> info.valor = calcula(&(atual->cabeca));
+		   	atual -> info.valor = calcula(&(atual->cabeca),&*flag);
 	 }
 	 return result;
 }
