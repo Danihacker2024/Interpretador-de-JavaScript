@@ -629,6 +629,96 @@ int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
 	return -1;	
 }
 
+/*
+float calculaPilha(PilhaGen **pO,PilhaGen **pV){
+	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
+	float x,y,res;
+	char op[20];
+	while(!isEmptyGen(*pO)){
+		popGen(&*pV,&aux);
+		y=aux->info.valor;
+		popGen(&*pO,&aux);
+		strcpy(op,aux->info.operador);
+		popGen(&*pV,&aux);
+		x=aux->info.valor;	
+		if(strcmp(op,"+")==0)
+			res = x+y;
+		else if(strcmp(op,"-")==0)
+			res = x-y;
+		else if(strcmp(op,"*")==0)
+			res = x*y;	
+		else if(strcmp(op,"/")==0)
+			res = x/y;
+		else if(strcmp(op,"**")==0)
+			res = pow(x,y);	
+		else if(strcmp(op,"%")==0)
+			res = (int)x% (int)y;
+		else if(strcmp(op,"sqrt")==0)
+			res = sqrt(y);
+		else if(strcmp(op,"abs")==0)
+			res = abs(y);
+		aux->info.valor = res;
+		pushGen(pV,aux);
+	}
+	return res;
+}
+
+
+
+float calcula(ListaGen **L,char *flag){
+	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
+	ListaGen *ant=(ListaGen*)malloc(sizeof(ListaGen));
+	ListaGen *ant2=(ListaGen*)malloc(sizeof(ListaGen));
+	PilhaGen *pV, *pO;
+	initGen(&pV);
+	initGen(&pO);
+	float x=0.0f,y;
+	aux=*L;
+	while(!Nula(aux)){
+		if(aux->terminal == 'V'){
+			pushGen(&pV,aux);
+		}
+		else if(aux->terminal == 'O'){
+			if(isEmptyGen(pO))
+				pushGen(&pO,aux);
+			else if((strcmp(aux->info.operador,"+") == 0 || strcmp(topGen(pO)->info.operador,"-") && !(strcmp(topGen(pO)->info.operador,"+") == 0 || strcmp(topGen(pO)->info.operador,"-") == 0))){
+				calculaPilha(&pO,&pV);
+				pushGen(&pO,aux);
+			}
+			else if((strcmp(topGen(pO)->info.operador,"*") == 0 || strcmp(topGen(pO)->info.operador,"/") && !(strcmp(topGen(pO)->info.operador,"sqrt") == 0 || strcmp(topGen(pO)->info.operador,"**") == 0))){
+				calculaPilha(&pO,&pV);
+				pushGen(&pO,aux);
+			}
+			else if(strcmp(topGen(pO)->info.operador,"**")==0 || strcmp(topGen(pO)->info.operador,"abs") == 0){
+				calculaPilha(&pO,&pV);
+				pushGen(&pO,aux);
+			}
+			else
+				pushGen(&pO,aux);	
+		}
+		else if(aux->terminal == 'F'){
+			if(isEmptyGen(pO))
+				pushGen(&pO,aux);
+			else if(strcmp(aux->info.funcao,"Math.sqrt") == 0){
+				strcpy(aux->info.operador,"sqrt");
+				calculaPilha(&pO,&pV);
+				pushGen(&pO,aux);
+			}
+			else if(strcmp(aux->info.funcao,"Math.abs") == 0){
+				strcpy(aux->info.operador,"abs");
+				pushGen(&pO,aux);
+			}
+		}
+		ant=aux;
+		free(ant);  
+		aux=aux->cauda;
+	}
+	return (calculaPilha(&pO,&pV));
+}
+*/
+
+
+/*
 int calculaAbs(ListaGen **ant,ListaGen **aux,int x){
 	x=(*aux)->info.valor;
 	x=abs(x);
@@ -845,7 +935,7 @@ float calcula(ListaGen **L,char *flag){
 	}
 	return x;
 }
-
+*/
 
 
 float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
