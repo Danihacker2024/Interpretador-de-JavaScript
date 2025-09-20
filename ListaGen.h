@@ -9,8 +9,8 @@
 union tipo
 {
 	float valor;
-	char operador[3];
-	char funcao[20];
+	char operador[30];
+	char funcao[30];
 };
 
 struct listagen

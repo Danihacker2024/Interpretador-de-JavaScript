@@ -147,7 +147,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 						
 				} 
 				testeV = buscaVariavel(&*p,&aux);
-				if(aux != NULL && strcmp(testeV.nome,aux->token)==0){
+				if(strcmp(testeV.nome,aux->token)==0){
 					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
 					aux=aux->prox;
 					if(aux!=NULL){
@@ -160,9 +160,9 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 									testeV.valorInt=0;
 									strcpy(testeV.valorString,"");
 									atualizaVariavel(&*p,testeV);
-								} else{
+								} //else{
 									//atribuicao de string
-								}
+								//}
 							}else
 								flag.erro=1;
 						}	

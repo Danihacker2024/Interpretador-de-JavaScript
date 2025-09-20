@@ -34,15 +34,15 @@ ListaGen *topGen(PilhaGen *p){
 	return NULL;
 }
 
-void popGen(PilhaGen **p,ListaGen **lista){
+void popGen(PilhaGen **p,ListaGen **aux2){
 	PilhaGen *aux;
 	if(!isEmptyGen(*p)){	
 		aux=*p;
-		*lista=(*p)->lista;
+		*aux2=(*p)->lista;
 		*p=aux->prox;
 		free(aux);
 	}else{
-		*lista=NULL;
+		*aux2=NULL;
 	}
 }
 

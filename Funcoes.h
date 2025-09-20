@@ -587,7 +587,7 @@ ListaGen *criaNo(Tokens **aux,Pilha **p, char *flag){
 			L = Cons(Tipo,NULL,NULL,'V');
 		} else {
 			if(Inteiro((*aux)->token)){
-				Tipo.valor = converteInt((*aux)->token);
+				Tipo.valor = (float)converteInt((*aux)->token);
 				L = Cons(Tipo,NULL,NULL,'V');		
 			} else if(Float((*aux)->token)){
 				Tipo.valor = converteFloat((*aux)->token);
@@ -623,8 +623,7 @@ int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
 	if(!Nula((*aux)->cauda)){
 		(*ant)->cauda=(*aux)->cauda;
 		free(*aux);
-		*aux=*ant;
-		(*aux)->info.valor=x;
+		(*ant)->info.valor=x;
 		return x;
 	}
 	return -1;	
@@ -636,8 +635,7 @@ int calculaAbs(ListaGen **ant,ListaGen **aux,int x){
 	if(!Nula((*aux)->cauda)){
 		(*ant)->cauda=(*aux)->cauda;
 		free(*aux);
-		*aux=*ant;
-		(*aux)->info.valor=x;
+		(*ant)->info.valor=x;
 		return x;
 	}
 	return -1;
@@ -645,10 +643,12 @@ int calculaAbs(ListaGen **ant,ListaGen **aux,int x){
 
 
 float calcula(ListaGen **L,char *flag){
-	ListaGen *aux,*ant,*ant2;
-	float x=0,y;
-	aux=*L;
-	while(!Nula(*L)){
+	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
+	ListaGen *ant=(ListaGen*)malloc(sizeof(ListaGen));
+	ListaGen *ant2=(ListaGen*)malloc(sizeof(ListaGen));
+	float x=0.0f,y;
+	while(!Nula(*L) && Tail(*L)!=NULL){
+		aux=*L;
 		//colocar como funcao
 		if(strcmp(aux->info.funcao,"Math.sqrt")==0){
 			ant=aux;
@@ -669,10 +669,10 @@ float calcula(ListaGen **L,char *flag){
 		else{
 			x=(*L)->info.valor;
 			aux=Tail(aux);
-			if(aux!=NULL){
+			if(!Nula(aux)){
 				ant=aux;
 				aux=Tail(aux);
-				if(aux!=NULL){
+				if(!Nula(aux)){
 					if(strcmp(ant->info.operador,"+")==0){
 						if(aux->terminal=='V'){
 							y=aux->info.valor;
@@ -842,10 +842,10 @@ float calcula(ListaGen **L,char *flag){
 			}else
 				*flag=1;
 		}
-		aux=*L;
 	}
 	return x;
 }
+
 
 
 float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
@@ -853,7 +853,7 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 float result=0.0f;
 	 initGen(&p1), initGen(&p2);
 	 ListaGen *l = NULL, *atual;
-	 while(*aux!=NULL && (*aux)->token != NULL && !*flag){
+	 while(*aux!=NULL && !*flag){
 		  if(l==NULL){
 			   l=atual=criaNo(&*aux, &*pVar, &*flag);
 			   if(!*flag)
@@ -866,6 +866,7 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 			if(!*flag){
 			    atual = atual -> cauda;
 				pushGen(&p1,atual);
+				pushGen(&p2,atual);
 				*aux = (*aux)->prox;
 				if(*aux!=NULL){
 					atual->cabeca = criaNo(&*aux, &*pVar, &*flag);
