@@ -629,7 +629,7 @@ int calculaSqrt(ListaGen **ant,ListaGen **aux,int x){
 	return -1;	
 }
 
-/*
+
 float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
 	float x,y,res;
@@ -652,7 +652,7 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 		else if(strcmp(op,"**")==0)
 			res = pow(x,y);	
 		else if(strcmp(op,"%")==0)
-			res = (int)x% (int)y;
+			res = (int)x % (int)y;
 		else if(strcmp(op,"sqrt")==0)
 			res = sqrt(y);
 		else if(strcmp(op,"abs")==0)
@@ -668,54 +668,25 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 float calcula(ListaGen **L,char *flag){
 	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
 	ListaGen *ant=(ListaGen*)malloc(sizeof(ListaGen));
-	ListaGen *ant2=(ListaGen*)malloc(sizeof(ListaGen));
 	PilhaGen *pV, *pO;
 	initGen(&pV);
 	initGen(&pO);
 	float x=0.0f,y;
 	aux=*L;
 	while(!Nula(aux)){
-		if(aux->terminal == 'V'){
+		if(aux->terminal == 'V')
 			pushGen(&pV,aux);
-		}
-		else if(aux->terminal == 'O'){
-			if(isEmptyGen(pO))
-				pushGen(&pO,aux);
-			else if((strcmp(aux->info.operador,"+") == 0 || strcmp(topGen(pO)->info.operador,"-") && !(strcmp(topGen(pO)->info.operador,"+") == 0 || strcmp(topGen(pO)->info.operador,"-") == 0))){
-				calculaPilha(&pO,&pV);
-				pushGen(&pO,aux);
-			}
-			else if((strcmp(topGen(pO)->info.operador,"*") == 0 || strcmp(topGen(pO)->info.operador,"/") && !(strcmp(topGen(pO)->info.operador,"sqrt") == 0 || strcmp(topGen(pO)->info.operador,"**") == 0))){
-				calculaPilha(&pO,&pV);
-				pushGen(&pO,aux);
-			}
-			else if(strcmp(topGen(pO)->info.operador,"**")==0 || strcmp(topGen(pO)->info.operador,"abs") == 0){
-				calculaPilha(&pO,&pV);
-				pushGen(&pO,aux);
-			}
-			else
-				pushGen(&pO,aux);	
-		}
-		else if(aux->terminal == 'F'){
-			if(isEmptyGen(pO))
-				pushGen(&pO,aux);
-			else if(strcmp(aux->info.funcao,"Math.sqrt") == 0){
-				strcpy(aux->info.operador,"sqrt");
-				calculaPilha(&pO,&pV);
-				pushGen(&pO,aux);
-			}
-			else if(strcmp(aux->info.funcao,"Math.abs") == 0){
-				strcpy(aux->info.operador,"abs");
-				pushGen(&pO,aux);
-			}
-		}
+		else 
+			pushGen(&pO,aux);	
 		ant=aux;
 		free(ant);  
 		aux=aux->cauda;
 	}
+	reordenarPilhas(&pO,&pV);
+	
 	return (calculaPilha(&pO,&pV));
 }
-*/
+
 
 
 /*
@@ -976,44 +947,52 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 }
 	 while(!isEmptyGen(p2)){
 		  popGen(&p2,&atual);
-		  if(l==atual)
-		   	result = calcula(&l,&*flag);
-		  else
-		   	atual -> info.valor = calcula(&(atual->cabeca),&*flag);
+		  //if(l==atual)
+		   	//result = calcula(&l,&*flag);
+		  //else
+		   	//atual -> info.valor = calcula(&(atual->cabeca),&*flag);
 	 }
 	 return result;
 }
 
 
 
-
-
-
-
 void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
+	char str[50];
 	var variavel;
 	adicionarLinha(&*linha);
-	//[console.log]->[(]->["]->[conteudo]
-	*aux=(*aux)->prox->prox->prox;	
-	if(*aux!=NULL){
-		while((*aux)->token[0]!='"' && *flag && (*aux)->token[0]!=39){
-			adicionarToken(*linha,(*aux)->token);
-			*aux=(*aux)->prox;
-		}
-	}else{
+	*linha = buscaLinha(*linha);
+	//[console.log]->[(]->["]->[conteudo]	
+	while (*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39) 
+    	*aux = (*aux)->prox;
+	if (*aux != NULL) {
+	    *aux = (*aux)->prox; 
+	    while (*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39) {
+	        adicionarToken(*linha, (*aux)->token);
+	        *aux = (*aux)->prox;
+	    }
+	    if(*aux==NULL)
+	    	*flag=1;
+	}else
 		*flag=1;
-	}
 	//["]->[)] || ["]->[,]
 	*aux=(*aux)->prox;
 	if(*aux!=NULL){
 		if(strcmp((*aux)->token,",")==0 || strcmp((*aux)->token,"+")==0){
-			adicionarToken(*linha,(*aux)->token);
 			*aux=(*aux)->prox;
 			if(*aux!=NULL){
 				variavel = buscaVariavel(&*p,&*aux);
-				if(variavel.terminal!=-1){
-					adicionarToken(*linha,(*aux)->token);
-				}else
+				if(variavel.terminal==1){
+					itoa(variavel.valorInt,str,10);
+					adicionarToken(*linha,str);
+				}else if (variavel.terminal==2){
+					sprintf(str,"%.2f",variavel.valorFloat);
+					adicionarToken(*linha,str);
+					//*flag=1;
+					//implementar calculos
+				} else if(variavel.terminal==3){
+					adicionarToken(*linha,variavel.valorString);
+				} else
 					*flag=1;
 			}else 
 				*flag=1;

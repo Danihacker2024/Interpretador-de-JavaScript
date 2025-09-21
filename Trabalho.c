@@ -273,36 +273,22 @@ Pilha *MemoriaRAM(Pilha *p){
 }
 
 void MostrarTela(Linha *consoleLog,Pilha **p){
+	consoleLog = buscaPrimeiraLinha(consoleLog);
 	Tokens *aux;
 	var var;
 	int y=6, x=28;
 	Menu2();
 	while(consoleLog!=NULL){
 		aux=consoleLog->pTokens;
+		gotoxy(x,y);
 		while(aux!=NULL){
-			if(strcmp(aux->token,",")==0 || strcmp(aux->token,"+")==0){
-				aux=aux->prox;
-				var = buscaVariavel(&*p,&aux);
-				if(var.terminal==1){
-					gotoxy(x,y);
-					printf("%d",var.valorInt);
-				}else if(var.terminal==2){
-					gotoxy(x,y);
-					printf("%f",var.valorFloat);
-				} else
-					gotoxy(x,y);
-					printf("%s",var.valorString);
-			}else{
-				gotoxy(x,y);
-				printf("%s",aux->token);
-				aux=aux->prox;	
-			}
-			x+=strlen(aux->token);	
+			printf("%s ",aux->token);
+			aux=aux->prox;	
 		}
-		consoleLog=consoleLog->prox;
+		consoleLog=consoleLog->prox;  
 		y++;
 	}
-	printf("\n");
+	//printf("\n");
 	getch();
 }
 

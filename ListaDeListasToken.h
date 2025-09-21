@@ -47,6 +47,15 @@ void adicionarLinha(Linha **inicio){
 	}
 }
 
+Linha *buscaPrimeiraLinha(Linha *lista){
+	Linha *aux=lista;
+	while(aux->ant!=NULL)
+		aux=aux->ant;
+	return aux;
+}	
+
+
+
 //busca a ultima linha adicionada
 Linha *buscaLinha(Linha *inicio){
 	Linha *aux=inicio;
