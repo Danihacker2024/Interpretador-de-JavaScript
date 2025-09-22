@@ -159,7 +159,7 @@ void MostrarTela(Linha *consoleLog){
 
 
 Linha *ExecutaSequencial(Linha *linha, Pilha **p){
-	int tam=0;
+	int tam=0,tamFuncao,tamOriginal;
 	char flagBreak=0;
 	char op;
 	var variavel;
@@ -200,7 +200,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 				} if(strcmp(aux->token,"function")==0){
 					function(&*p,&aux,&flag.erro,&linhaF);
 					flag.executa=0;
-						
+					tamFuncao=tam;	
 				}/*
 				if(aux!=NULL){
 					testeV = buscaVariavel(&*p,&aux);
@@ -243,6 +243,8 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 									if(aux!=NULL){
 										if(strcmp(aux->token,linhaF->nomeFunc)==0){
 											flag.funcao=1;
+											tamOriginal=tam;
+											tam=tamFuncao;
 											//while(aux->prox!=NULL)
 												//aux=aux->prox;
 											//linha=linha->prox;
@@ -275,6 +277,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					flag.executa=1;
 				if(flag.funcao){
 				    flag.funcao=0;
+				    tam=tamOriginal;
 				    while(linha != NULL && linha != Local) { 
 				        linha = linha->prox;
 				    }

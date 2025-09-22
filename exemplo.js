@@ -1,6 +1,6 @@
-let x;
+function funcao(){
+	let x=10;
+}
 
-x = 2+2
-
-console.log("x = ", x)
-
+let y =10;
+funcao();
