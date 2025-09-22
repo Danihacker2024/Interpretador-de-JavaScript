@@ -77,8 +77,9 @@ void adicionarToken(Linha *linha, char token[]){
 	}
 }
 
-void exibirTokens(Linha *inicio) {
+void exibirTokens(Linha *inicio, int tam) {
     Linha *aux = inicio;
+    int z=0;
     int y = 6;  
     int x   = 28;
 	int linha=1; 
@@ -86,21 +87,38 @@ void exibirTokens(Linha *inicio) {
 
     textcolor(15);
     textbackground(0);
-
-    while (aux != NULL && y < 29) {
-        gotoxy(x, y);
-
-        comando = aux->pTokens;
-        printf("Linha %d: ", linha);
-
-        while (comando != NULL) {
-            printf("[%s] ", comando->token);
-            comando = comando->prox;
-        }
-		linha++;
-        y++;
-        aux = aux->prox;
-    }
+	if(tam==0){
+	    while (aux != NULL && y < 29) {
+	        gotoxy(x, y);
+	
+	        comando = aux->pTokens;
+	        printf("Linha %d: ", linha);
+	
+	        while (comando != NULL) {
+	            printf("[%s] ", comando->token);
+	            comando = comando->prox;
+	        }
+			linha++;
+	        y++;
+	        aux = aux->prox;
+	    }
+	}else{
+		 while (aux != NULL && y < 29 && z!=tam) {
+	        gotoxy(x, y);
+	
+	        comando = aux->pTokens;
+	        printf("Linha %d: ", linha);
+	
+	        while (comando != NULL) {
+	            printf("[%s] ", comando->token);
+	            comando = comando->prox;
+	        }
+			linha++;
+	        y++;
+	        aux = aux->prox;
+	        z++;
+	    }	
+	}
 }
 
 #endif

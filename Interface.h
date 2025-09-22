@@ -76,6 +76,25 @@ void Menu2(){
     printf("[ESC] - Voltar");
 }
 
+void Menu3(){
+	system("cls");
+	FormPrincipal();
+    textcolor(15);
+    textbackground(0);
+    textcolor(10);
+    textbackground(0);
+    gotoxy(3,18);
+    printf("[ENTER] Continuar");
+    gotoxy(3,19);
+    printf("[F9] Mostrar conteudo");
+    gotoxy(3,20);
+    printf("da Memoria RAM");
+    gotoxy(3,21);
+    printf("[F10] Mostrar tela");
+    gotoxy(3,22);
+    printf("[ESC] - Abortar");
+}
+
 
 void exibirParticipantes(void){
 	Moldura(1, 1, 120, 30, 6, 0);

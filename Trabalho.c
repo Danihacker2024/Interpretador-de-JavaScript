@@ -105,8 +105,63 @@ Linha *leArq(){
 	return inicio;
 }
 
-Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
+
+Pilha *MemoriaRAM(Pilha *p){
+	Pilha *p2;
+	init(&p2);
+	var aux = inicializaVar(0); 
+	int y=6;   
+	Menu2();
+	gotoxy(28,y);
+	printf("&\tidentificador\tvalor\tponteiro\tterminal");
+	y++;
+	while(!isEmpty(p)){
+		pop(&p,&aux);
+		gotoxy(28,y);
+		printf("%u\t%s\t",&aux,aux.nome);
+		if(aux.terminal==1)
+			printf("%d\t",aux.valorInt);
+		else if(aux.terminal==2)
+			printf("%.2f\t",aux.valorFloat);
+		else if(aux.terminal==3)
+			printf("%s\t",aux.valorString);
+		else
+			printf("-\t");
+		printf("[NULL]\t");
+		printf("\t%d",aux.terminal);
+		y++;
+		push(&p2,aux);
+	}
+	getch();
+	return p2;
+}
+
+void MostrarTela(Linha *consoleLog){
+	consoleLog = buscaPrimeiraLinha(consoleLog);
+	Tokens *aux;
+	var var;
+	int y=6, x=28;
+	Menu2();
+	while(consoleLog!=NULL){
+		aux=consoleLog->pTokens;
+		gotoxy(x,y);
+		while(aux!=NULL){
+			printf("%s ",aux->token);
+			aux=aux->prox;	
+		}
+		consoleLog=consoleLog->prox;  
+		y++;
+	}
+	//printf("\n");
+	getch();
+}
+
+
+
+Linha *ExecutaSequencial(Linha *linha, Pilha **p){
+	int tam=0;
 	char flagBreak=0;
+	char op;
 	var variavel;
 	Linha *Local;
 	LinhaF *funcao;
@@ -119,6 +174,7 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 	iniciaFlag(&flag);
 	Tokens *aux;
 	int y=6;
+	Linha *primeira = linha;
 	while(linha!=NULL && !flag.erro){
 		aux = linha->pTokens;
 		while(aux!=NULL && !flag.erro && !flagBreak){
@@ -145,28 +201,30 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 					function(&*p,&aux,&flag.erro,&linhaF);
 					flag.executa=0;
 						
-				} /*
-				testeV = buscaVariavel(&*p,&aux);
-				if(strcmp(testeV.nome,aux->token)==0){
-					//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
-					aux=aux->prox;
-					if(aux!=NULL){
-						if(strcmp(aux->token,"=")==0){
-							aux=aux->prox;
-							if(aux!=NULL){
-								if(aux->token[0]!='"' && aux->token[0]!=39){
-									testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
-									testeV.terminal=2;
-									testeV.valorInt=0;
-									strcpy(testeV.valorString,"");
-									atualizaVariavel(&*p,testeV);
-								} //else{
-									//atribuicao de string
-								//}
-							}else
-								flag.erro=1;
-						}	
-					}			
+				}/*
+				if(aux!=NULL){
+					testeV = buscaVariavel(&*p,&aux);
+					if(strcmp(testeV.nome,aux->token)==0){
+						//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(strcmp(aux->token,"=")==0){
+								aux=aux->prox;
+								if(aux!=NULL){
+									if(aux->token[0]!='"' && aux->token[0]!=39){
+										testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
+										testeV.terminal=2;
+										testeV.valorInt=0;
+										strcpy(testeV.valorString,"");
+										atualizaVariavel(&*p,testeV);
+									} //else{
+										//atribuicao de string
+									//}
+								}else
+									flag.erro=1;
+							}	
+						}			
+					}
 				}*/
 				//chamada de funcao
 				funcao = buscaFuncao(linhaF, aux->token);
@@ -232,6 +290,30 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 			linha=linha->prox;
 		if(flagBreak)
 			flagBreak=0;
+		tam++;
+		op = getch();
+		Menu3();
+		exibirTokens(primeira,tam);
+		if(op == 0 || op == 224){
+			op = getch();
+			if(op==67){
+				if (*p!=NULL)
+					*p = MemoriaRAM(*p);
+				else{
+					gotoxy(28,6);
+					printf("Nao ha variaveis na Memoria");
+					getch();	
+				}
+			}else if(op==68){
+				if(listaConsoleLog!=NULL)
+					MostrarTela(listaConsoleLog);
+				else{
+					gotoxy(28,6);
+					printf("Nao ha console.logs para mostrar");
+					getch();	
+				}		
+			}	
+		} 
 	}
 	if(flag.erro){
 		Menu2();
@@ -239,60 +321,10 @@ Linha *ExecutaSequencial(Linha *linha, struct pilha **p){
 		printf("Erro na execucao do programa");
 		getch();
 	}
+	gotoxy(28,6);
+	printf("Fim da execucao");
 	return listaConsoleLog;		
 }
-
-Pilha *MemoriaRAM(Pilha *p){
-	Pilha *p2;
-	init(&p2);
-	var aux = inicializaVar(0); 
-	int y=6;   
-	Menu2();
-	gotoxy(28,y);
-	printf("&\tidentificador\tvalor\tponteiro\tterminal");
-	y++;
-	while(!isEmpty(p)){
-		pop(&p,&aux);
-		gotoxy(28,y);
-		printf("%u\t%s\t",&aux,aux.nome);
-		if(aux.terminal==1)
-			printf("%d\t",aux.valorInt);
-		else if(aux.terminal==2)
-			printf("%.2f\t",aux.valorFloat);
-		else if(aux.terminal==3)
-			printf("%s\t",aux.valorString);
-		else
-			printf("-\t");
-		printf("[NULL]\t");
-		printf("\t%d",aux.terminal);
-		y++;
-		push(&p2,aux);
-	}
-	getch();
-	return p2;
-}
-
-void MostrarTela(Linha *consoleLog,Pilha **p){
-	consoleLog = buscaPrimeiraLinha(consoleLog);
-	Tokens *aux;
-	var var;
-	int y=6, x=28;
-	Menu2();
-	while(consoleLog!=NULL){
-		aux=consoleLog->pTokens;
-		gotoxy(x,y);
-		while(aux!=NULL){
-			printf("%s ",aux->token);
-			aux=aux->prox;	
-		}
-		consoleLog=consoleLog->prox;  
-		y++;
-	}
-	//printf("\n");
-	getch();
-}
-
-
 
 
 int main(void){
@@ -318,7 +350,7 @@ int main(void){
 				    if (codigo != NULL) {  
 						do{ 
 	        				Menu2();
-				            exibirTokens(codigo);
+				            exibirTokens(codigo,0);
 							gotoxy(21,22);
 							opcao = getch();
 							if (opcao == 0 || opcao == 224) {
@@ -333,10 +365,15 @@ int main(void){
 						            case 67://F9 Mostrar conteudo da Memoria RAM 
 										if (p!=NULL)
 											p = MemoriaRAM(p);
+										else{
+											gotoxy(28,6);
+											printf("Nao ha variaveis na Memoria");
+											getch();	
+										}
 						                break;
 						            case 68://F10 Mostrar tela (resultados do console.log)
 						            	if(consoleLog!=NULL)
-						            		MostrarTela(consoleLog,&p);
+						            		MostrarTela(consoleLog);
 						            	break;
 						        	default:
 						                gotoxy(50, 10);
