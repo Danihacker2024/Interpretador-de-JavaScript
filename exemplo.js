@@ -1,8 +1,6 @@
-let x=1;
-let y=3.9;
+let x;
 
-console.log("Teste do console.log x = ", x);
+x = 2+2
 
-console.log("y = " + y)
-
+console.log("x = ", x)
 
