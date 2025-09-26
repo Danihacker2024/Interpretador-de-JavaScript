@@ -1,6 +1,4 @@
-function funcao(){
-	let x=10;
-}
+let a;
+let b;
 
-let y =10;
-funcao();
+a = Math.sqrt ( 16 ) + 20

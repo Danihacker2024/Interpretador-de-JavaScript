@@ -571,16 +571,19 @@ ListaGen *criaNo(Tokens **aux,Pilha **p, char *flag){
 
 float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
-	float x,y,res;
+	float x,y,res=0;
 	char op[20];
 	while(!isEmptyGen(*pO)){
-		popGen(&*pO,&aux);
+		popGen(&*pO,&aux);	
 		strcpy(op,aux->info.operador);
 		popGen(&*pV,&aux);
 		y=aux->info.valor;
+		printf("y = %.2f     ",y);
 		if(strcmp(op,"Math.sqrt")!=0 || strcmp(op,"Math.abs")!=0){
 			popGen(&*pV,&aux);
-			x=aux->info.valor;	
+			x=aux->info.valor;
+			printf("x = %.2f    ",x);
+			printf("op = %s     ",op);	
 			if(strcmp(op,"+")==0)
 				res = x+y;
 			else if(strcmp(op,"-")==0)
@@ -597,8 +600,8 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 			res = sqrt(y);
 		else if(strcmp(op,"Math.abs")==0)
 			res = abs(y);
+		printf("res = %.2f    ",res);
 		aux->info.valor = res;
-		pushGen(pV,aux);
 	}
 	return res;
 }
@@ -609,6 +612,7 @@ float calcula(ListaGen **L,char *flag){
 	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
 	ListaGen *ant=(ListaGen*)malloc(sizeof(ListaGen));
 	PilhaGen *pV, *pO;
+	float result=0;
 	initGen(&pV);
 	initGen(&pO);
 	float x=0.0f,y;
@@ -651,13 +655,14 @@ float calcula(ListaGen **L,char *flag){
 		ant=aux;
 		aux=Tail(aux);
 	}
+	result = calculaPilha(&pO,&pV);
 	aux=*L;
 	while(!Nula(aux)){
 		ant=aux;
 		free(ant);
 		aux=Tail(aux);
 	}	
-	return (calculaPilha(&pO,&pV));
+	return result;
 }
 
 float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
@@ -665,6 +670,8 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 float result=0.0f;
 	 initGen(&p1), initGen(&p2);
 	 ListaGen *l = NULL, *atual;
+	 char funcao=0;
+	
 	 while(*aux!=NULL && !*flag){
 		  if(l==NULL){
 			   l=atual=criaNo(&*aux, &*pVar, &*flag);
@@ -694,7 +701,8 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 			   atual->cauda = criaNo(&*aux, &*pVar, &*flag);
 			   atual = atual->cauda;
 		  }
-		  *aux = (*aux)->prox;
+		  if(*aux!=NULL)
+		  	*aux = (*aux)->prox;
 	 }
 	 while(!isEmptyGen(p2)){
 		  popGen(&p2,&atual);
