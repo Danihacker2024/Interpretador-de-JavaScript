@@ -1,17 +1,17 @@
-function dividePor2(x){
-	return x/2
-}
+function faz_uma_repeticao_while(X, n) 
+{ 
+	let i=0; 
+	let result=1; 
+	while(i<n) 
+	{ 
+		result=result * X; 
+		i++; 
+	} 
+	return result; 
+} 	
 
+let s;
 
+s = faz_uma_repeticao_while(2,4); 
 
-function duplica(a){
-	dividePor2(a)
-	return a
-}
-
-
-let b=2;
-
-b = 4
-
-b = duplica(b)
+console.log("Resultado = " + s); 

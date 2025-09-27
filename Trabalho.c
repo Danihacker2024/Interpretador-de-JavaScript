@@ -159,13 +159,18 @@ void MostrarTela(Linha *consoleLog){
 
 
 Linha *ExecutaSequencial(Linha *linha, Pilha **p){
-	int tam=0,tamFuncao,tamOriginal;
+	int tam=0,tamFuncao,tamOriginal,tamWhile,tamDo,tamFor,cont;
+	char forIncremento=0,forDecremento=0, primeExec=1;
 	char flagBreak=0;
 	char op;
 	var variavel;
 	var variavelRetorno = inicializaVar(-1);
 	var var2=inicializaVar(-1);
 	Linha *Local = NULL;
+	Linha *LocalWhile = NULL;
+	Linha *LocalDo = NULL;
+	Linha *LocalFor = NULL;
+	Linha *LinhaFinal = NULL;
 	LinhaF *funcao = NULL;
 	LinhaF *linhaF = NULL;
 	var testeV = inicializaVar(-1);
@@ -174,7 +179,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 	Linha *listaConsoleLog = NULL;
 	Flag flag;
 	iniciaFlag(&flag);
-	Tokens *aux,*varInicial;
+	Tokens *aux,*varInicial,*posCondicao,*fimFor;
 	int y=6;
 	Linha *primeira = linha;
 	while(linha!=NULL && !flag.erro){
@@ -192,7 +197,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 							strcpy(variavel.nome,aux->token);
 						}else{
 							varInicial=aux;
-							variavel = declaracao(&aux,&flag.erro,*p,linhaF);
+							variavel = declaracao(&aux,&flag.erro,*p);
 							if(aux->prox!=NULL && (variavel.terminal==1 || variavel.terminal==2)){
 								variavel=inicializaVar(2);
 								strcpy(variavel.nome,varInicial->token);
@@ -283,10 +288,113 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					else
 						flag.erro=1;
 				}
-				
-				
-				
-				
+				if(strcmp(aux->token,"while")==0){
+					flag.executa = flag.While = If(&*p,&aux,&flag.erro);
+					LocalWhile=linha->ant;
+					tamWhile=tam-1;
+					if(flag.While==0)
+						linha=LinhaFinal;
+				}
+				if(strcmp(aux->token,"do")==0){
+					flag.Do=1;
+					LocalDo=linha->ant;
+					tamDo=tam-1;
+				}
+				//for aqui
+				if(strcmp(aux->token,"for")==0){
+					aux=aux->prox;
+					if(aux!=NULL && strcmp(aux->token,"(")==0){
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(primeExec){
+								if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
+									variavel = inicializaVar(0);
+									aux=aux->prox;
+									if(aux!=NULL)
+										variavel = declaracao(&aux,&flag.erro,*p);
+									if(!flag.erro)
+										push(&*p,variavel);
+								}else{
+									testeV = buscaVariavel(&*p,&aux);
+									if(testeV.terminal!=-1){
+										aux=aux->prox;
+										if(aux!=NULL && strcmp(aux->token,"=")==0){
+											aux=aux->prox;
+											if(aux!=NULL){
+												atribuicao(&aux,&*p,&flag.erro,&testeV);
+												if(!flag.erro && testeV.terminal!=3)
+													atualizaVariavel(&*p,testeV);
+												else
+													flag.erro=1;
+											}
+											else
+												flag.erro=1;
+										}else
+											flag.erro=1;
+									}else
+										flag.erro=1;	
+								}
+							}else
+								aux=posCondicao;
+							//printf("antes de verificar a condicao: %s",aux->token);
+							///estou aquiiiiiii
+							posCondicao=aux;
+							flag.executa = flag.For = comparacaoSemParenteses(&*p,&aux,&flag.erro);
+							//printf("condicao: %d    ",flag.For);
+							//printf("depois de verificar condicao: %s",aux->token);
+							LocalFor=linha->ant;
+							tamFor=tam-1;
+							if(!primeExec){
+								aux=aux->prox;
+								if(aux!=NULL){
+									testeV = buscaVariavel(&*p,&aux);
+									//printf("     quando achou a var: %d",testeV.valorInt);
+									if(strcmp(testeV.nome,aux->token)==0){
+										aux=aux->prox;
+										if(aux!=NULL){
+											if(strcmp(aux->token,"+")==0 && aux->prox!=NULL && strcmp(aux->prox->token,"+")==0){
+												if(testeV.terminal==1)
+													testeV.valorInt++;
+												else if(testeV.terminal==2)
+													testeV.valorFloat++;
+												else 
+													flag.erro=1;
+											}else if(strcmp(aux->token,"-")==0 && aux->prox!=NULL && strcmp(aux->prox->token,"-")==0){
+												if(testeV.terminal==1)
+													testeV.valorInt--;
+												else if(testeV.terminal==2){
+													testeV.valorFloat--;
+												}
+												else 
+													flag.erro=1;
+											}else
+												flag.erro=1;
+										}else
+											flag.erro=1;
+									}else
+										flag.erro=1;
+									//printf("      quando atualizou: %d",testeV.valorInt);
+									if(!flag.erro)
+										atualizaVariavel(&*p,testeV);
+									fimFor=aux;
+									aux=posCondicao;
+									flag.executa = flag.For = comparacaoSemParenteses(&*p,&aux,&flag.erro);
+									aux=fimFor;
+									if(flag.For==0){
+										linha=LinhaFinal;
+									}
+								}else
+									flag.erro=1;
+							}else{
+								while(aux!=NULL)
+									aux=aux->prox;
+							}
+						}else
+							flag.erro=1;
+					}else
+						flag.erro=1;
+				}
+				//fim do for
 				if(aux!=NULL){
 					testeV = buscaVariavel(&*p,&aux);
 					if(strcmp(testeV.nome,aux->token)==0){						
@@ -333,6 +441,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 												}	
 											}
 										} else
+										 //atribuindo um valor ou variavel
 											atribuicao(&aux,&*p,&flag.erro,&testeV);	
 									} else{
 										aux=aux->prox;
@@ -354,6 +463,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 									if(strcmp(aux->token,"+")==0){
 										if(testeV.terminal==1){
 											testeV.valorInt++;
+											//printf("entrou aqui");
 											atualizaVariavel(&*p,testeV);
 										}else if(testeV.terminal==2){
 											testeV.valorFloat++;
@@ -404,10 +514,6 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 											flag.funcao=1;
 											tamOriginal=tam;
 											tam=tamFuncao;
-											//while(aux->prox!=NULL)
-												//aux=aux->prox;
-											//linha=linha->prox;
-											//aux=linha->pTokens;
 											flagBreak=1;		
 										}
 									}
@@ -434,8 +540,30 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 			}
 			if(aux!=NULL){
 				if(strcmp(aux->token,"}")==0){
-					if(!flag.executa)
-						flag.executa=1;
+					LinhaFinal=linha;
+					if(flag.For){
+						if(primeExec)
+							primeExec=0;
+						linha=LocalFor;
+						tam=tamFor;
+					}
+					if(flag.Do){
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(strcmp(aux->token,"while")==0){
+								flag.Do = If(&*p,&aux,&flag.erro);
+								if(flag.Do){
+									linha=LocalDo;
+									tam=tamDo;
+								}
+							}
+						}else 
+							flag.erro=1;
+					}
+					if(flag.While){
+						linha=LocalWhile;
+						tam=tamWhile;
+					}
 					if(flag.funcao){
 					    flag.funcao=0;
 					    tam=tamOriginal;
@@ -446,6 +574,8 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					        linha = linha->prox;
 					    }
 					}
+					if(!flag.executa && flag.terminal==0)
+						flag.executa=1;
 				}
 			}
 			if(aux!=NULL)

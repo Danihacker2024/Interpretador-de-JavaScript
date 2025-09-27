@@ -16,6 +16,10 @@ struct flag{
 	char executa;
 	char If;
 	char funcao;
+	char While;
+	char Do;
+	char For;
+	int terminal;
 };typedef struct flag Flag;
 
 void iniciaFlag(Flag *flag){
@@ -23,6 +27,10 @@ void iniciaFlag(Flag *flag){
 	flag->executa=1;
 	flag->If=1;
 	flag->funcao=0;
+	flag->Do=0;
+	flag->While=0;
+	flag->For=0;
+	terminal=0;
 }
 
 
@@ -342,13 +350,81 @@ char If(Pilha **p, Tokens **aux, char *flag) {
 						*flag=1;
 				}else
 					*flag=1;
-			}else
+			}else//copiar ate aqui
 				*flag=1;
-    	}else 
+    	}else //copiar ate aqui
 			*flag=1;
 	}else
 		*flag=1;
     return 0; 
+}
+
+char comparacaoSemParenteses(Pilha **p, Tokens **aux, char *flag) {
+	var var1 = inicializaVar(-1);
+	var var2 = inicializaVar(-1);
+    int num;
+    float numf;
+    char condicao1, condicao2;
+	char logico[5];
+	char comparador[5];
+	*aux = (*aux)->prox;
+    if (*aux != NULL) {
+        if (strcmp((*aux)->token, "!") == 0) {
+            *aux = (*aux)->prox;
+            if (*aux != NULL) {
+            	var1 = buscaVariavel(&*p, &*aux);
+                atribui(&var1, -1, &*aux );
+                *aux = (*aux)->prox;
+                if (*aux != NULL) {
+                    strcpy(comparador,(*aux)->token);
+                    *aux = (*aux)->prox;
+                    if (*aux != NULL) {
+                    	if (strcmp((*aux)->token, "!") == 0) {
+                    		*aux = (*aux)->prox;
+                    		if (*aux != NULL) {
+                    			var2 = buscaVariavel(&*p, &*aux);
+                                atribui(&var2, -1, &*aux );
+	                        }else
+	                        	*flag=1;
+						}else{
+							var2 = buscaVariavel(&*p, &*aux);
+                    		atribui(&var2, 1, &*aux );
+                    	}
+        			}else
+        				*flag=1;
+        		}else
+					*flag=1;
+			}else 
+				*flag=1;
+		}else{
+			var1 = buscaVariavel(&*p, &*aux);
+            atribui(&var1, 1, &*aux );
+            *aux = (*aux)->prox;
+            if (*aux != NULL) {
+                strcpy(comparador,(*aux)->token);
+                *aux = (*aux)->prox;
+                if (*aux != NULL) {
+                	if (strcmp((*aux)->token, "!") == 0) {
+                		*aux = (*aux)->prox;
+                		if (*aux != NULL) {
+                			var2 = buscaVariavel(&*p, &*aux);
+                            atribui(&var2, -1, &*aux );
+                        }else
+                        	*flag=1;
+					}else{
+						var2 = buscaVariavel(&*p, &*aux);
+                		atribui(&var2, 1, &*aux );
+					}
+    			}else
+    				*flag=1;
+    		}else
+				*flag=1;			
+		}
+		condicao1 = compara(var1,var2,comparador);
+		return condicao1;
+	}
+	*flag=1;
+	return 0;
 }
 
 
