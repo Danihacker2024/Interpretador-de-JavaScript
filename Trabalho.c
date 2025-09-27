@@ -163,6 +163,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 	char flagBreak=0;
 	char op;
 	var variavel;
+	var variavelRetorno = inicializaVar(-1);
 	var var2=inicializaVar(-1);
 	Linha *Local = NULL;
 	LinhaF *funcao = NULL;
@@ -191,7 +192,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 							strcpy(variavel.nome,aux->token);
 						}else{
 							varInicial=aux;
-							variavel = declaracao(&aux,&flag.erro,*p);
+							variavel = declaracao(&aux,&flag.erro,*p,linhaF);
 							if(aux->prox!=NULL && (variavel.terminal==1 || variavel.terminal==2)){
 								variavel=inicializaVar(2);
 								strcpy(variavel.nome,varInicial->token);
@@ -209,53 +210,130 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					function(&*p,&aux,&flag.erro,&linhaF);
 					flag.executa=0;
 					tamFuncao=tam;	
+				} if(strcmp(aux->token,"return")==0){
+					aux=aux->prox;
+					if(aux!=NULL){
+						if(aux->token[0]!='"' && aux->token[0]!=39){
+							if(aux->prox!=NULL){
+								funcao = buscaFuncao(linhaF, aux->token);
+								if(funcao==NULL){
+									//se nao for funcao sera equacao
+									if(strcmp(aux->prox->token,"+")==0 && aux->prox->prox!=NULL && strcmp(aux->prox->prox->token,"+")==0){
+										if(variavelRetorno.terminal==1)
+											variavelRetorno.valorInt++;
+										else if(variavelRetorno.terminal==2)
+											variavelRetorno.valorFloat++;
+										else 
+											flag.erro=1;
+									}else if(strcmp(aux->prox->token,"-")==0 && aux->prox->prox!=NULL && strcmp(aux->prox->prox->token,"-")==0){
+										if(variavelRetorno.terminal==1)
+											variavelRetorno.valorInt--;
+										else if(variavelRetorno.terminal==2)
+											variavelRetorno.valorFloat--;
+										else 
+											flag.erro=1;
+									}else{
+										variavelRetorno.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
+										variavelRetorno.terminal=2;
+										variavelRetorno.valorInt=0;
+										variavelRetorno.valorString[0]='\0';
+									}
+								}
+								/*else{
+									//funcao
+									aux=aux->prox;
+									if(aux!=NULL){
+										if(strcmp(aux->token,"(")==0){
+											if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
+												chamaFuncao(funcao,&aux,&flag.erro,&*p);
+											Local=linha;
+											while(linha!=NULL && !flag.funcao){
+												linha=linha->ant;
+												aux=linha->pTokens;
+												if(aux!=NULL){
+													aux=aux->prox;
+													if(aux!=NULL){
+														if(strcmp(aux->token,linhaF->nomeFunc)==0){
+															flag.funcao=1;
+															tamOriginal=tam;
+															tam=tamFuncao;
+															flagBreak=1;		
+														}
+													}
+												}
+											}
+										}
+									}	
+								}*/
+							} else
+								atribuicao(&aux,&*p,&flag.erro,&variavelRetorno);
+						}else{
+							aux=aux->prox;
+							while(aux!=NULL && aux->token[0]!='"' && aux->token[0]!=39){
+								strcat(variavelRetorno.valorString," ");
+								strcat(variavelRetorno.valorString,aux->token);
+								aux=aux->prox;
+							}
+							variavelRetorno.valorInt=0;
+							variavelRetorno.valorFloat=0.00;
+							variavelRetorno.terminal=3;
+						}
+						atualizaVariavel(&*p,variavelRetorno);
+					}
+					else
+						flag.erro=1;
 				}
+				
+				
+				
+				
 				if(aux!=NULL){
 					testeV = buscaVariavel(&*p,&aux);
 					if(strcmp(testeV.nome,aux->token)==0){						
 						//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
 						aux=aux->prox;
 						if(aux!=NULL){
-							
 							if(strcmp(aux->token,"=")==0){
 								aux=aux->prox;
 								if(aux!=NULL){
 									if(aux->token[0]!='"' && aux->token[0]!=39){
 										if(aux->prox!=NULL){
-											testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
-											testeV.terminal=2;
-											testeV.valorInt=0;
-											testeV.valorString[0]='\0';
-										} else{
-											var2 = buscaVariavel(&*p,&aux);
-											if(var2.terminal==1){
-												testeV.valorInt=var2.valorInt;
-												testeV.terminal=1;
-												testeV.valorFloat=0.00;
-												testeV.valorString[0]='\0';
-											} else if(var2.terminal==2){
-												testeV.valorFloat=testeV.valorFloat;
+											funcao = buscaFuncao(linhaF, aux->token);
+											if(funcao==NULL){
+												testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
 												testeV.terminal=2;
 												testeV.valorInt=0;
 												testeV.valorString[0]='\0';
-											} else if(var2.terminal==3){
-												strcpy(testeV.valorString,var2.valorString);
-												testeV.terminal=3;
-												testeV.valorInt=0;
-												testeV.valorFloat=0.00f;
-											}else if(Inteiro(aux->token)){
-												testeV.valorInt=converteInt(aux->token);
-												testeV.terminal=1;
-												testeV.valorFloat=0.00;
-												testeV.valorString[0]='\0';
-											} else if(Float(aux->token)){
-												testeV.valorFloat=converteFloat(aux->token);
-												testeV.terminal=2;
-												testeV.valorInt=0;
-												testeV.valorString[0]='\0';
-											} else
-												flag.erro=1;
-										}
+											}
+											else{
+												//funcao
+												aux=aux->prox;
+												variavelRetorno = testeV;
+												if(aux!=NULL){
+													if(strcmp(aux->token,"(")==0){
+														if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
+															chamaFuncao(funcao,&aux,&flag.erro,&*p);
+														Local=linha;
+														while(linha!=NULL && !flag.funcao){
+															linha=linha->ant;
+															aux=linha->pTokens;
+															if(aux!=NULL){
+																aux=aux->prox;
+																if(aux!=NULL){
+																	if(strcmp(aux->token,linhaF->nomeFunc)==0){
+																		flag.funcao=1;
+																		tamOriginal=tam;
+																		tam=tamFuncao;
+																		flagBreak=1;		
+																	}
+																}
+															}
+														}
+													}
+												}	
+											}
+										} else
+											atribuicao(&aux,&*p,&flag.erro,&testeV);	
 									} else{
 										aux=aux->prox;
 										while(aux!=NULL && aux->token[0]!='"' && aux->token[0]!=39){
@@ -270,7 +348,38 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 									atualizaVariavel(&*p,testeV);
 								}else
 									flag.erro=1;
-							}	
+							}else if(strcmp(aux->token,"+")==0){
+								aux=aux->prox;
+								if(aux!=NULL){
+									if(strcmp(aux->token,"+")==0){
+										if(testeV.terminal==1){
+											testeV.valorInt++;
+											atualizaVariavel(&*p,testeV);
+										}else if(testeV.terminal==2){
+											testeV.valorFloat++;
+											atualizaVariavel(&*p,testeV);
+										}else 
+											flag.erro=1;	
+									}
+								}else 
+									flag.erro=1;
+							}else if(strcmp(aux->token,"-")==0){
+								aux=aux->prox;
+								if(aux!=NULL){
+									if(strcmp(aux->token,"-")==0){
+										if(testeV.terminal==1){
+											testeV.valorInt--;
+											atualizaVariavel(&*p,testeV);
+										}else if(testeV.terminal==2){
+											testeV.valorFloat--;
+											atualizaVariavel(&*p,testeV);
+										}else 
+											flag.erro=1;
+									}
+								}else 
+									flag.erro=1;
+							} else
+								flag.erro=1;	
 						}			
 					}
 				}

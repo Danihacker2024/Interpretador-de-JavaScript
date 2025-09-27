@@ -520,6 +520,43 @@ void chamaFuncao(LinhaF *linha, Tokens **aux, char *flag, Pilha **p){
 	}
 }
 
+void atribuicao(Tokens **aux, Pilha **p, char *flag, var *var){
+	struct variavel var2=inicializaVar(-1);
+	var2 = buscaVariavel(&*p,&*aux);
+	if(var2.terminal==1){
+		(*var).valorInt=var2.valorInt;
+		(*var).terminal=1;
+		(*var).valorFloat=0.00;
+		(*var).valorString[0]='\0';
+	} else if(var2.terminal==2){
+		(*var).valorFloat=var2.valorFloat;
+		(*var).terminal=2;
+		(*var).valorInt=0;
+		(*var).valorString[0]='\0';
+	} else if(var2.terminal==3){
+		strcpy((*var).valorString,var2.valorString);
+		(*var).terminal=3;
+		(*var).valorInt=0;
+		(*var).valorFloat=0.00f;
+	}else if(Inteiro((*aux)->token)){
+		(*var).valorInt=converteInt((*aux)->token);
+		(*var).terminal=1;
+		(*var).valorFloat=0.00;
+		(*var).valorString[0]='\0';
+	} else if(Float((*aux)->token)){
+		(*var).valorFloat=converteFloat((*aux)->token);
+		(*var).terminal=2;
+		(*var).valorInt=0;
+		(*var).valorString[0]='\0';
+	} else
+		*flag=1;
+}
+
+
+
+
+
+//inicio de calculos aritmeticos
 //rever criaNo
 ListaGen *criaNo(Tokens **aux,Pilha **p, char *flag){
 	var x = inicializaVar(-1);
@@ -576,14 +613,18 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 		//printf("repeticao: %d      ", i);
 		//printf("y = %.2f     ",y);
 		if(stricmp(op,"Math.sqrt")!=0 && stricmp(op,"Math.abs")!=0){
-			popGen(&*pV,&aux);
-			x=aux->info.valor;
+			if(res==0){
+				popGen(&*pV,&aux);
+				x=aux->info.valor;
+			}
+			else
+				x=res;
 			//printf("x = %.2f    ",x);
 			//printf("op = %s     ",op);	
 			if(strcmp(op,"+")==0)
 				res = x+y;
 			else if(strcmp(op,"-")==0)
-				res = x-y;
+				res = y-x;
 			else if(strcmp(op,"*")==0)
 				res = x*y;	
 			else if(strcmp(op,"/")==0)
@@ -597,7 +638,8 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 		else if(stricmp(op,"Math.abs")==0)
 			res = abs(y);
 		//printf("res = %.2f    ",res);
-		aux->info.valor = res;
+		//aux->info.valor = res;
+		//pushGen(&*pV,aux);
 		i++;
 	}
 	return res;
@@ -608,26 +650,41 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 float calcula(ListaGen **L,char *flag){
 	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
 	ListaGen *ant=(ListaGen*)malloc(sizeof(ListaGen));
-	PilhaGen *pV, *pO;
+	ListaGen *aux2=(ListaGen*)malloc(sizeof(ListaGen));
+	PilhaGen *pV, *pO, *pVaux, *pOaux;
 	float result=0;
+	initGen(&pVaux);
+	initGen(&pOaux);
 	initGen(&pV);
 	initGen(&pO);
 	float x=0.0f,y;
 	aux=*L;
 	while(!Nula(aux)){
 		if(strcmp(aux->info.operador,"+")==0 || strcmp(aux->info.operador,"-")==0){
-			pushGen(&pV,ant);
-			pushGen(&pO,aux);
+			pushGen(&pVaux,ant);
+			pushGen(&pOaux,aux);
 			aux=Tail(aux);
-			pushGen(&pV,aux);
+			pushGen(&pVaux,aux);
 		}
 		ant=aux;			
 		aux=Tail(aux);
 	}
+	while(!isEmptyGen(pOaux)){
+		if(!isEmptyGen(pVaux)){
+			popGen(&pVaux,&aux2);
+			pushGen(&pV,aux2);
+			popGen(&pVaux,&aux2);
+			pushGen(&pV,aux2);
+		}
+		popGen(&pOaux,&aux2);
+		pushGen(&pO,aux2);
+	}
 	aux=*L;
 	while(!Nula(aux)){
+		
 		if(strcmp(aux->info.operador,"*")==0 || strcmp(aux->info.operador,"/")==0 || strcmp(aux->info.operador,"%")==0){
-			pushGen(&pV,ant);
+			if(ant!=topGen(pV))
+				pushGen(&pV,ant);
 			pushGen(&pO,aux);
 			aux=Tail(aux);
 			pushGen(&pV,aux);		
@@ -639,7 +696,8 @@ float calcula(ListaGen **L,char *flag){
 	while(!Nula(aux)){
 		if(strcmp(aux->info.operador,"**")==0 || strcmp(aux->info.funcao,"Math.sqrt")==0 || strcmp(aux->info.funcao,"Math.abs")==0){
 			if(strcmp(aux->info.operador,"**")==0){
-				pushGen(&pV,ant);
+				if(ant!=topGen(pV))
+					pushGen(&pV,ant);
 				pushGen(&pO,aux);
 				aux=Tail(aux);
 				pushGen(&pV,aux);		
