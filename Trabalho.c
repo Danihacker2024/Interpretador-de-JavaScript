@@ -163,6 +163,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 	char flagBreak=0;
 	char op;
 	var variavel;
+	var var2=inicializaVar(-1);
 	Linha *Local = NULL;
 	LinhaF *funcao = NULL;
 	LinhaF *linhaF = NULL;
@@ -172,7 +173,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 	Linha *listaConsoleLog = NULL;
 	Flag flag;
 	iniciaFlag(&flag);
-	Tokens *aux;
+	Tokens *aux,*varInicial;
 	int y=6;
 	Linha *primeira = linha;
 	while(linha!=NULL && !flag.erro){
@@ -188,8 +189,15 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					if(aux!=NULL){
 						if(aux->prox==NULL){
 							strcpy(variavel.nome,aux->token);
-						}else 
-							variavel = declaracao(&aux,&flag.erro,*p); // na declaração deve ter opcao para chamada de funcao
+						}else{
+							varInicial=aux;
+							variavel = declaracao(&aux,&flag.erro,*p);
+							if(aux->prox!=NULL && (variavel.terminal==1 || variavel.terminal==2)){
+								variavel=inicializaVar(2);
+								strcpy(variavel.nome,varInicial->token);
+								variavel.valorFloat = resolveEquacao(&varInicial,&*p,&flag.erro);
+							}
+						} 
 						if(!flag.erro)
 							push(&*p,variavel);
 					}else 
@@ -204,27 +212,62 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 				}
 				if(aux!=NULL){
 					testeV = buscaVariavel(&*p,&aux);
-					
-					if(strcmp(testeV.nome,aux->token)==0){
-						
+					if(strcmp(testeV.nome,aux->token)==0){						
 						//atribuicao de variavel ja declarada - seja calculos, incrementos, chamada de funcao, etc.
 						aux=aux->prox;
 						if(aux!=NULL){
 							
 							if(strcmp(aux->token,"=")==0){
-								
 								aux=aux->prox;
 								if(aux!=NULL){
 									if(aux->token[0]!='"' && aux->token[0]!=39){
-										
-										testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
-										testeV.terminal=2;
+										if(aux->prox!=NULL){
+											testeV.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
+											testeV.terminal=2;
+											testeV.valorInt=0;
+											testeV.valorString[0]='\0';
+										} else{
+											var2 = buscaVariavel(&*p,&aux);
+											if(var2.terminal==1){
+												testeV.valorInt=var2.valorInt;
+												testeV.terminal=1;
+												testeV.valorFloat=0.00;
+												testeV.valorString[0]='\0';
+											} else if(var2.terminal==2){
+												testeV.valorFloat=testeV.valorFloat;
+												testeV.terminal=2;
+												testeV.valorInt=0;
+												testeV.valorString[0]='\0';
+											} else if(var2.terminal==3){
+												strcpy(testeV.valorString,var2.valorString);
+												testeV.terminal=3;
+												testeV.valorInt=0;
+												testeV.valorFloat=0.00f;
+											}else if(Inteiro(aux->token)){
+												testeV.valorInt=converteInt(aux->token);
+												testeV.terminal=1;
+												testeV.valorFloat=0.00;
+												testeV.valorString[0]='\0';
+											} else if(Float(aux->token)){
+												testeV.valorFloat=converteFloat(aux->token);
+												testeV.terminal=2;
+												testeV.valorInt=0;
+												testeV.valorString[0]='\0';
+											} else
+												flag.erro=1;
+										}
+									} else{
+										aux=aux->prox;
+										while(aux!=NULL && aux->token[0]!='"' && aux->token[0]!=39){
+											strcat(testeV.valorString," ");
+											strcat(testeV.valorString,aux->token);
+											aux=aux->prox;
+										}
 										testeV.valorInt=0;
-										strcpy(testeV.valorString,"A");
-										atualizaVariavel(&*p,testeV);
-									} //else{
-										//atribuicao de string
-									//}
+										testeV.valorFloat=0.00;
+										testeV.terminal=3;
+									}
+									atualizaVariavel(&*p,testeV);
 								}else
 									flag.erro=1;
 							}	
@@ -236,11 +279,11 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					funcao = buscaFuncao(linhaF, aux->token);
 				if(funcao!=NULL){
 					//verifica variaveis dentro da chamada antes de ir pra linha da funcao
-					printf("erro aqui");
 					aux=aux->prox;
 					if(aux!=NULL){
 						if(strcmp(aux->token,"(")==0){
-							chamaFuncao(funcao,&aux,&flag.erro,&*p);
+							if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
+								chamaFuncao(funcao,&aux,&flag.erro,&*p);
 							Local=linha;
 							while(linha!=NULL && !flag.funcao){
 								linha=linha->ant;

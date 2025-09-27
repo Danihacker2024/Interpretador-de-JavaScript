@@ -547,16 +547,7 @@ ListaGen *criaNo(Tokens **aux,Pilha **p, char *flag){
 			}else{
 				if(strcmp((*aux)->token,"Math.sqrt")==0 || strcmp((*aux)->token,"Math.abs")==0){
 					strcpy(Tipo.funcao,(*aux)->token);
-					*aux=(*aux)->prox;
-					if(*aux!=NULL){
-						*aux=(*aux)->prox;
-						if(*aux!=NULL){
-							L = Cons(Tipo,NULL,criaNo(&*aux,&*p,&*flag),'F');
-							*aux=(*aux)->prox;
-						}else
-							*flag=1;
-					}else 
-						*flag=1;
+					L = Cons(Tipo,NULL,NULL,'F');
 				} else {
 					strcpy(Tipo.operador,(*aux)->token);
 					L = Cons(Tipo,NULL,NULL,'O');
@@ -573,17 +564,22 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 	ListaGen *aux=(ListaGen*)malloc(sizeof(ListaGen));
 	float x,y,res=0;
 	char op[20];
+	int i=1;
 	while(!isEmptyGen(*pO)){
-		popGen(&*pO,&aux);	
-		strcpy(op,aux->info.operador);
+		popGen(&*pO,&aux);
+		if(aux->terminal=='O')	
+			strcpy(op,aux->info.operador);
+		else
+			strcpy(op,aux->info.funcao);
 		popGen(&*pV,&aux);
 		y=aux->info.valor;
-		printf("y = %.2f     ",y);
-		if(strcmp(op,"Math.sqrt")!=0 || strcmp(op,"Math.abs")!=0){
+		//printf("repeticao: %d      ", i);
+		//printf("y = %.2f     ",y);
+		if(stricmp(op,"Math.sqrt")!=0 && stricmp(op,"Math.abs")!=0){
 			popGen(&*pV,&aux);
 			x=aux->info.valor;
-			printf("x = %.2f    ",x);
-			printf("op = %s     ",op);	
+			//printf("x = %.2f    ",x);
+			//printf("op = %s     ",op);	
 			if(strcmp(op,"+")==0)
 				res = x+y;
 			else if(strcmp(op,"-")==0)
@@ -596,12 +592,13 @@ float calculaPilha(PilhaGen **pO,PilhaGen **pV){
 				res = pow(x,y);	
 			else if(strcmp(op,"%")==0)
 				res = (int)x % (int)y;
-		} else if(strcmp(op,"Math.sqrt")==0)
+		} else if(stricmp(op,"Math.sqrt")==0)
 			res = sqrt(y);
-		else if(strcmp(op,"Math.abs")==0)
+		else if(stricmp(op,"Math.abs")==0)
 			res = abs(y);
-		printf("res = %.2f    ",res);
+		//printf("res = %.2f    ",res);
 		aux->info.valor = res;
+		i++;
 	}
 	return res;
 }
@@ -640,13 +637,13 @@ float calcula(ListaGen **L,char *flag){
 	}
 	aux=*L;
 	while(!Nula(aux)){
-		if(strcmp(aux->info.operador,"**")==0 || strcmp(aux->info.operador,"Math.sqrt")==0 || strcmp(aux->info.operador,"Math.abs")==0){
+		if(strcmp(aux->info.operador,"**")==0 || strcmp(aux->info.funcao,"Math.sqrt")==0 || strcmp(aux->info.funcao,"Math.abs")==0){
 			if(strcmp(aux->info.operador,"**")==0){
 				pushGen(&pV,ant);
 				pushGen(&pO,aux);
 				aux=Tail(aux);
 				pushGen(&pV,aux);		
-			}else{
+			}else if(strcmp(aux->info.funcao,"Math.sqrt")==0 || strcmp(aux->info.funcao,"Math.abs")==0){
 				pushGen(&pO,aux);
 				aux=Tail(aux);
 				pushGen(&pV,aux);
@@ -675,10 +672,12 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 while(*aux!=NULL && !*flag){
 		  if(l==NULL){
 			   l=atual=criaNo(&*aux, &*pVar, &*flag);
+			   if(l->terminal=='F')
+			   	funcao=1;
 			   if(!*flag)
 			   	pushGen(&p2,l);
 		  }
-		  else if(strcmp((*aux)->token,"(")==0){
+		  else if(strcmp((*aux)->token,"(")==0 && !funcao){
 		  	(*aux)->token[0] = '0';
 			(*aux)->token[1] = '\0';	
 			atual -> cauda = criaNo(&*aux, &*pVar, &*flag);
@@ -695,14 +694,20 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 			}
 		  }
 		  else if(strcmp((*aux)->token,")")==0){
-		   	popGen(&p1,&atual);
+		   		if(!funcao)
+			   popGen(&p1,&atual);
+			   else
+			   	funcao=1;
 		  }
 		  else{
+		  	if(strcmp((*aux)->token,"(")!=0){
 			   atual->cauda = criaNo(&*aux, &*pVar, &*flag);
 			   atual = atual->cauda;
+			   if(l->terminal=='F')
+			   	funcao=1;
+			}
 		  }
-		  if(*aux!=NULL)
-		  	*aux = (*aux)->prox;
+		*aux = (*aux)->prox;
 	 }
 	 while(!isEmptyGen(p2)){
 		  popGen(&p2,&atual);
