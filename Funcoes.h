@@ -30,7 +30,7 @@ void iniciaFlag(Flag *flag){
 	flag->Do=0;
 	flag->While=0;
 	flag->For=0;
-	terminal=0;
+	flag->terminal=0;
 }
 
 
@@ -474,16 +474,21 @@ var declaracao(Tokens **aux,char *flag,Pilha *p){
 						else if((*aux)->token[0]==39 || (*aux)->token[0]=='"'){
 							*aux=(*aux)->prox;
 							variavel.terminal=3;
-							while((*aux)->token[0]!='"' && *flag && (*aux)->token[0]!=39){
-								if(*aux!=NULL){
-									strcat(variavel.valorString,(*aux)->token);
-									*aux=(*aux)->prox;
-									if((*aux)->token[0]!=39 && (*aux)->token[0]!='"' && *aux!=NULL)
-										strcat(variavel.valorString," ");
-								} else
-									*flag=1;
+							if(*aux != NULL && (*aux)->prox!=NULL && ((*aux)->prox->token[0]==39 || (*aux)->prox->token[0]=='"')){
+								strcpy(variavel.valorString, (*aux)->token);
+    							*aux = (*aux)->prox;
+							}else{
+								while (*aux != NULL && *flag && (*aux)->token[0] != '"' && (*aux)->token[0] != 39) {
+								    strcat(variavel.valorString, (*aux)->token);
+								
+								    *aux = (*aux)->prox;
+								
+								    if (*aux != NULL && (*aux)->token[0] != 39 && (*aux)->token[0] != '"')
+								        strcat(variavel.valorString, " ");
+								}
 							}
-							}	
+
+						}	
 					}
 				}else
 					*flag=1;
@@ -853,14 +858,153 @@ float resolveEquacao(Tokens **aux, Pilha **pVar, char *flag){
 	 return result;
 }
 
+void consoleLog(Tokens **aux, Linha **linha, char *flag, Pilha **p) {
+    char str[50];
+    var variavel;
+    adicionarLinha(&*linha);
+    *linha = buscaLinha(*linha);
+
+	if (*aux!=NULL) 
+		*aux = (*aux)->prox;  
+	if (*aux!=NULL) 
+		*aux = (*aux)->prox; 	
+
+    while (*aux && strcmp((*aux)->token, ")") != 0) {
+        if ((*aux)->token[0] == '"' || (*aux)->token[0] == '\'') {
+        	*aux = (*aux)->prox;
+			while (*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != '\'') {
+				adicionarToken(*linha, (*aux)->token);
+				*aux = (*aux)->prox;
+    		}
+    		if(*aux!=NULL)
+    			*aux = (*aux)->prox;
+        } else {
+            variavel = buscaVariavel(p, aux);
+
+            if (variavel.terminal == -1) {
+			    if (Inteiro((*aux)->token)) {
+			        variavel.valorInt = converteInt((*aux)->token);
+			        variavel.terminal = 1;
+			        *aux = (*aux)->prox; 
+			    } else if (Float((*aux)->token)) {
+			        variavel.valorFloat = converteFloat((*aux)->token);
+			        variavel.terminal = 2;
+			        *aux = (*aux)->prox; 
+			    } else {
+			        variavel.valorFloat = resolveEquacao(&*aux, &*p, &*flag);
+			        variavel.terminal = 2;
+			    }
+            }
+
+            if (variavel.terminal == 1) { 
+                itoa(variavel.valorInt, str, 10);
+                adicionarToken(*linha, str);
+            } else if (variavel.terminal == 2) { 
+                sprintf(str, "%.2f", variavel.valorFloat);
+                adicionarToken(*linha, str);
+            } else if (variavel.terminal == 3) { 
+                adicionarToken(*linha, variavel.valorString);
+            } else 
+                *flag = 1; 
+			if(*aux!=NULL)
+            	*aux = (*aux)->prox;
+        }
+
+        if (*aux && (strcmp((*aux)->token, ",") == 0 || strcmp((*aux)->token, "+") == 0)) {
+            *aux = (*aux)->prox;
+        }
+    }
+
+    if (*aux!=NULL) 
+		*aux = (*aux)->prox;
+}
 
 
+
+
+
+
+
+/*
 void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
 	char str[50];
 	var variavel;
 	adicionarLinha(&*linha);
 	*linha = buscaLinha(*linha);
-	//[console.log]->[(]->["]->[conteudo]	
+	//[console.log]->[(]->["]->[conteudo]
+	*aux = (*aux)->prox;
+	if(aux!=NULL){
+		*aux=(*aux)->prox;
+		if(aux!=NULL){
+			if((*aux)->token[0] != '"' && (*aux)->token[0] != 39){
+				while (*aux != NULL && strcmp((*aux)->token,",")!=0 && strcmp((*aux)->token,")")!=0) {
+					*aux = (*aux)->prox;
+					adicionarToken(*linha, (*aux)->token);
+	    		}
+	    		if(*aux != NULL && strcmp((*aux)->token,",")==0){
+	    			while(*aux != NULL && strcmp((*aux)->token,")")!=0){
+	    				if(*aux != NULL && (*aux)->prox != NULL && strcmp((*aux)->prox->token,",")==0){
+							variavel = buscaVariavel(&*p,&*aux);
+							if(variavel.terminal==1){
+								itoa(variavel.valorInt,str,10);
+								adicionarToken(*linha,str);
+							}else if (variavel.terminal==2){
+								sprintf(str,"%.2f",variavel.valorFloat);
+								adicionarToken(*linha,str);
+							} else if(variavel.terminal==3){
+								adicionarToken(*linha,variavel.valorString);
+							} else
+								*flag=1;
+							*aux=(*aux)->prox->prox;
+						}else if(*aux != NULL && (*aux)->prox != NULL && strcmp((*aux)->prox->token,",")!=0 && strcmp((*aux)->token,")")!=0){
+							variavel = buscaVariavel(&*p,&*aux);
+							variavel.valorFloat = resolveEquacao(&*aux,&*p,&*flag);
+							sprintf(str,"%.2f",variavel.valorFloat);
+							adicionarToken(*linha,str);
+							printf("aux esta aqui : %s", (*aux)->token);
+						}
+						if(*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39){
+							while (*aux != NULL && strcmp((*aux)->token,",")!=0 && strcmp((*aux)->token,")")!=0) {
+								*aux = (*aux)->prox;
+								adicionarToken(*linha, (*aux)->token);
+				    		}
+						}
+	    			}
+				}
+			}else{
+				while(*aux != NULL && strcmp((*aux)->token,")")!=0){
+					if(*aux != NULL && (*aux)->prox != NULL && strcmp((*aux)->prox->token,",")==0){
+						variavel = buscaVariavel(&*p,&*aux);
+						if(variavel.terminal==1){
+							itoa(variavel.valorInt,str,10);
+							adicionarToken(*linha,str);
+						}else if (variavel.terminal==2){
+							sprintf(str,"%.2f",variavel.valorFloat);
+							adicionarToken(*linha,str);
+						} else if(variavel.terminal==3){
+							adicionarToken(*linha,variavel.valorString);
+						} else
+							*flag=1;
+						*aux=(*aux)->prox->prox;
+					}else if(*aux != NULL && (*aux)->prox != NULL && strcmp((*aux)->prox->token,",")!=0 && strcmp((*aux)->token,")")!=0){
+						variavel = buscaVariavel(&*p,&*aux);
+						variavel.valorFloat = resolveEquacao(&*aux,&*p,&*flag);
+						sprintf(str,"%.2f",variavel.valorFloat);
+						adicionarToken(*linha,str);
+						printf("aux esta aqui : %s", (*aux)->token);
+					}
+					if(*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39){
+						while (*aux != NULL && strcmp((*aux)->token,",")!=0 && strcmp((*aux)->token,")")!=0) {
+							*aux = (*aux)->prox;
+							adicionarToken(*linha, (*aux)->token);
+			    		}
+					}
+				}
+			}
+		}
+	}
+}*//*
+	//versao antiga	
 	while (*aux != NULL && (*aux)->token[0] != '"' && (*aux)->token[0] != 39) 
     	*aux = (*aux)->prox;
 	if (*aux != NULL) {
@@ -874,29 +1018,38 @@ void consoleLog(Tokens **aux,Linha **linha, char *flag, Pilha **p){
 	}else
 		*flag=1;
 	//["]->[)] || ["]->[,]
-	*aux=(*aux)->prox;
+	//printf("Estou quebrando aqui");
+	//printf("valor de aux = %s",(*aux)->token);
 	if(*aux!=NULL){
-		if(strcmp((*aux)->token,",")==0 || strcmp((*aux)->token,"+")==0){
-			*aux=(*aux)->prox;
-			if(*aux!=NULL){
-				variavel = buscaVariavel(&*p,&*aux);
-				if(variavel.terminal==1){
-					itoa(variavel.valorInt,str,10);
-					adicionarToken(*linha,str);
-				}else if (variavel.terminal==2){
-					sprintf(str,"%.2f",variavel.valorFloat);
-					adicionarToken(*linha,str);
-					//*flag=1;
-					//implementar calculos
-				} else if(variavel.terminal==3){
-					adicionarToken(*linha,variavel.valorString);
-				} else
+		*aux=(*aux)->prox;
+		//printf("valor de aux = %s",(*aux)->token);
+		if(*aux!=NULL){
+			if(strcmp((*aux)->token,",")==0 || strcmp((*aux)->token,"+")==0){
+				*aux=(*aux)->prox;
+				//printf("valor de aux = %s",(*aux)->token);
+				if(*aux!=NULL){
+					variavel = buscaVariavel(&*p,&*aux);
+					if(variavel.terminal==1){
+						itoa(variavel.valorInt,str,10);
+						adicionarToken(*linha,str);
+					}else if (variavel.terminal==2){
+						sprintf(str,"%.2f",variavel.valorFloat);
+						adicionarToken(*linha,str);
+						//*flag=1;
+						//implementar calculos
+					} else if(variavel.terminal==3){
+						adicionarToken(*linha,variavel.valorString);
+					} else
+						*flag=1;
+				}else 
 					*flag=1;
-			}else 
-				*flag=1;
-		}
+			}
+		}else
+			*flag=1;
 	}else 
 		*flag=1;
+	if((*aux)->prox!=NULL);
+		*aux=(*aux)->prox;
 }
-
+*/
 #endif

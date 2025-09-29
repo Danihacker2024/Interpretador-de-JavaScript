@@ -186,213 +186,232 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 		aux = linha->pTokens;
 		while(aux!=NULL && !flag.erro && !flagBreak){
 			if(flag.executa){
-				if(strcmp(aux->token,"console.log")==0){
-					consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
+				if(aux!=NULL){
+					if(strcmp(aux->token,"console.log")==0){
+						consoleLog(&aux, &listaConsoleLog, &flag.erro,&*p);
+						//printf("%s",aux->token);
+					}
 				}
-				if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
-					variavel = inicializaVar(0);
-					aux=aux->prox;
-					if(aux!=NULL){
-						if(aux->prox==NULL){
-							strcpy(variavel.nome,aux->token);
-						}else{
-							varInicial=aux;
-							variavel = declaracao(&aux,&flag.erro,*p);
-							if(aux->prox!=NULL && (variavel.terminal==1 || variavel.terminal==2)){
-								variavel=inicializaVar(2);
-								strcpy(variavel.nome,varInicial->token);
-								variavel.valorFloat = resolveEquacao(&varInicial,&*p,&flag.erro);
-							}
-						} 
-						if(!flag.erro)
-							push(&*p,variavel);
-					}else 
-						flag.erro=1;
-				}
-				 if(strcmp(aux->token,"if")==0){
-					flag.executa = flag.If = If(&*p,&aux,&flag.erro); 
-				} if(strcmp(aux->token,"function")==0){
-					function(&*p,&aux,&flag.erro,&linhaF);
-					flag.executa=0;
-					tamFuncao=tam;	
-				} if(strcmp(aux->token,"return")==0){
-					aux=aux->prox;
-					if(aux!=NULL){
-						if(aux->token[0]!='"' && aux->token[0]!=39){
-							if(aux->prox!=NULL){
-								funcao = buscaFuncao(linhaF, aux->token);
-								if(funcao==NULL){
-									//se nao for funcao sera equacao
-									if(strcmp(aux->prox->token,"+")==0 && aux->prox->prox!=NULL && strcmp(aux->prox->prox->token,"+")==0){
-										if(variavelRetorno.terminal==1)
-											variavelRetorno.valorInt++;
-										else if(variavelRetorno.terminal==2)
-											variavelRetorno.valorFloat++;
-										else 
-											flag.erro=1;
-									}else if(strcmp(aux->prox->token,"-")==0 && aux->prox->prox!=NULL && strcmp(aux->prox->prox->token,"-")==0){
-										if(variavelRetorno.terminal==1)
-											variavelRetorno.valorInt--;
-										else if(variavelRetorno.terminal==2)
-											variavelRetorno.valorFloat--;
-										else 
-											flag.erro=1;
-									}else{
-										variavelRetorno.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
-										variavelRetorno.terminal=2;
-										variavelRetorno.valorInt=0;
-										variavelRetorno.valorString[0]='\0';
-									}
+				if(aux!=NULL){
+					if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
+						variavel = inicializaVar(0);
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(aux->prox==NULL){
+								strcpy(variavel.nome,aux->token);
+							}else{
+								varInicial=aux;
+								variavel = declaracao(&aux,&flag.erro,*p);
+								if(aux->prox!=NULL && (variavel.terminal==1 || variavel.terminal==2)){
+									variavel=inicializaVar(2);
+									strcpy(variavel.nome,varInicial->token);
+									variavel.valorFloat = resolveEquacao(&varInicial,&*p,&flag.erro);
 								}
-								/*else{
-									//funcao
-									aux=aux->prox;
-									if(aux!=NULL){
-										if(strcmp(aux->token,"(")==0){
-											if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
-												chamaFuncao(funcao,&aux,&flag.erro,&*p);
-											Local=linha;
-											while(linha!=NULL && !flag.funcao){
-												linha=linha->ant;
-												aux=linha->pTokens;
-												if(aux!=NULL){
-													aux=aux->prox;
+							} 
+							if(!flag.erro)
+								push(&*p,variavel);
+						}else 
+							flag.erro=1;
+					}
+				}
+				if(aux!=NULL){
+					 if(strcmp(aux->token,"if")==0){
+						flag.executa = flag.If = If(&*p,&aux,&flag.erro); 
+					}
+				} 
+				if(aux!=NULL){
+					if(strcmp(aux->token,"function")==0){
+						function(&*p,&aux,&flag.erro,&linhaF);
+						flag.executa=0;
+						tamFuncao=tam;	
+					}
+				} 
+				if(aux!=NULL){
+					if(strcmp(aux->token,"return")==0){
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(aux->token[0]!='"' && aux->token[0]!=39){
+								if(aux->prox!=NULL){
+									//funcao = buscaFuncao(linhaF, aux->token);
+									//if(funcao==NULL){
+										//se nao for funcao sera equacao
+										if(strcmp(aux->prox->token,"+")==0 && aux->prox->prox!=NULL && strcmp(aux->prox->prox->token,"+")==0){
+											if(variavelRetorno.terminal==1)
+												variavelRetorno.valorInt++;
+											else if(variavelRetorno.terminal==2)
+												variavelRetorno.valorFloat++;
+											else 
+												flag.erro=1;
+										}else if(strcmp(aux->prox->token,"-")==0 && aux->prox->prox!=NULL && strcmp(aux->prox->prox->token,"-")==0){
+											if(variavelRetorno.terminal==1)
+												variavelRetorno.valorInt--;
+											else if(variavelRetorno.terminal==2)
+												variavelRetorno.valorFloat--;
+											else 
+												flag.erro=1;
+										}else{
+											variavelRetorno.valorFloat = resolveEquacao(&aux,&*p,&flag.erro);
+											variavelRetorno.terminal=2;
+											variavelRetorno.valorInt=0;
+											variavelRetorno.valorString[0]='\0';
+										}
+									//}
+									/*else{
+										//funcao
+										aux=aux->prox;
+										if(aux!=NULL){
+											if(strcmp(aux->token,"(")==0){
+												if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
+													chamaFuncao(funcao,&aux,&flag.erro,&*p);
+												Local=linha;
+												while(linha!=NULL && !flag.funcao){
+													linha=linha->ant;
+													aux=linha->pTokens;
 													if(aux!=NULL){
-														if(strcmp(aux->token,linhaF->nomeFunc)==0){
-															flag.funcao=1;
-															tamOriginal=tam;
-															tam=tamFuncao;
-															flagBreak=1;		
+														aux=aux->prox;
+														if(aux!=NULL){
+															if(strcmp(aux->token,linhaF->nomeFunc)==0){
+																flag.funcao=1;
+																tamOriginal=tam;
+																tam=tamFuncao;
+																flagBreak=1;		
+															}
 														}
 													}
 												}
 											}
-										}
-									}	
-								}*/
-							} else
-								atribuicao(&aux,&*p,&flag.erro,&variavelRetorno);
-						}else{
-							aux=aux->prox;
-							while(aux!=NULL && aux->token[0]!='"' && aux->token[0]!=39){
-								strcat(variavelRetorno.valorString," ");
-								strcat(variavelRetorno.valorString,aux->token);
+										}	
+									}*/
+								} else
+									atribuicao(&aux,&*p,&flag.erro,&variavelRetorno);
+							}else{
 								aux=aux->prox;
+								while(aux!=NULL && aux->token[0]!='"' && aux->token[0]!=39){
+									strcat(variavelRetorno.valorString," ");
+									strcat(variavelRetorno.valorString,aux->token);
+									aux=aux->prox;
+								}
+								variavelRetorno.valorInt=0;
+								variavelRetorno.valorFloat=0.00;
+								variavelRetorno.terminal=3;
 							}
-							variavelRetorno.valorInt=0;
-							variavelRetorno.valorFloat=0.00;
-							variavelRetorno.terminal=3;
+							atualizaVariavel(&*p,variavelRetorno);
 						}
-						atualizaVariavel(&*p,variavelRetorno);
+						else
+							flag.erro=1;
 					}
-					else
-						flag.erro=1;
 				}
-				if(strcmp(aux->token,"while")==0){
-					flag.executa = flag.While = If(&*p,&aux,&flag.erro);
-					LocalWhile=linha->ant;
-					tamWhile=tam-1;
-					if(flag.While==0)
-						linha=LinhaFinal;
+				if(aux!=NULL){
+					if(strcmp(aux->token,"while")==0){
+						flag.executa = flag.While = If(&*p,&aux,&flag.erro);
+						LocalWhile=linha->ant;
+						tamWhile=tam-1;
+						if(flag.While==0)
+							linha=LinhaFinal;
+					}
 				}
-				if(strcmp(aux->token,"do")==0){
-					flag.Do=1;
-					LocalDo=linha->ant;
-					tamDo=tam-1;
+				if(aux!=NULL){
+					if(strcmp(aux->token,"do")==0){
+						flag.Do=1;
+						LocalDo=linha->ant;
+						tamDo=tam-1;
+					}
 				}
 				//for aqui
-				if(strcmp(aux->token,"for")==0){
-					aux=aux->prox;
-					if(aux!=NULL && strcmp(aux->token,"(")==0){
+				if(aux!=NULL){
+					if(strcmp(aux->token,"for")==0){
 						aux=aux->prox;
-						if(aux!=NULL){
-							if(primeExec){
-								if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
-									variavel = inicializaVar(0);
-									aux=aux->prox;
-									if(aux!=NULL)
-										variavel = declaracao(&aux,&flag.erro,*p);
-									if(!flag.erro)
-										push(&*p,variavel);
-								}else{
-									testeV = buscaVariavel(&*p,&aux);
-									if(testeV.terminal!=-1){
+						if(aux!=NULL && strcmp(aux->token,"(")==0){
+							aux=aux->prox;
+							if(aux!=NULL){
+								if(primeExec){
+									if(strcmp(aux->token,"let")==0 || strcmp(aux->token,"var")==0){
+										variavel = inicializaVar(0);
 										aux=aux->prox;
-										if(aux!=NULL && strcmp(aux->token,"=")==0){
+										if(aux!=NULL)
+											variavel = declaracao(&aux,&flag.erro,*p);
+										if(!flag.erro)
+											push(&*p,variavel);
+									}else{
+										testeV = buscaVariavel(&*p,&aux);
+										if(testeV.terminal!=-1){
 											aux=aux->prox;
-											if(aux!=NULL){
-												atribuicao(&aux,&*p,&flag.erro,&testeV);
-												if(!flag.erro && testeV.terminal!=3)
-													atualizaVariavel(&*p,testeV);
+											if(aux!=NULL && strcmp(aux->token,"=")==0){
+												aux=aux->prox;
+												if(aux!=NULL){
+													atribuicao(&aux,&*p,&flag.erro,&testeV);
+													if(!flag.erro && testeV.terminal!=3)
+														atualizaVariavel(&*p,testeV);
+													else
+														flag.erro=1;
+												}
 												else
 													flag.erro=1;
-											}
-											else
+											}else
 												flag.erro=1;
 										}else
-											flag.erro=1;
-									}else
-										flag.erro=1;	
-								}
-							}else
-								aux=posCondicao;
-							//printf("antes de verificar a condicao: %s",aux->token);
-							///estou aquiiiiiii
-							posCondicao=aux;
-							flag.executa = flag.For = comparacaoSemParenteses(&*p,&aux,&flag.erro);
-							//printf("condicao: %d    ",flag.For);
-							//printf("depois de verificar condicao: %s",aux->token);
-							LocalFor=linha->ant;
-							tamFor=tam-1;
-							if(!primeExec){
-								aux=aux->prox;
-								if(aux!=NULL){
-									testeV = buscaVariavel(&*p,&aux);
-									//printf("     quando achou a var: %d",testeV.valorInt);
-									if(strcmp(testeV.nome,aux->token)==0){
-										aux=aux->prox;
-										if(aux!=NULL){
-											if(strcmp(aux->token,"+")==0 && aux->prox!=NULL && strcmp(aux->prox->token,"+")==0){
-												if(testeV.terminal==1)
-													testeV.valorInt++;
-												else if(testeV.terminal==2)
-													testeV.valorFloat++;
-												else 
-													flag.erro=1;
-											}else if(strcmp(aux->token,"-")==0 && aux->prox!=NULL && strcmp(aux->prox->token,"-")==0){
-												if(testeV.terminal==1)
-													testeV.valorInt--;
-												else if(testeV.terminal==2){
-													testeV.valorFloat--;
-												}
-												else 
+											flag.erro=1;	
+									}
+								}else
+									aux=posCondicao;
+								//printf("antes de verificar a condicao: %s",aux->token);
+								///estou aquiiiiiii
+								posCondicao=aux;
+								flag.executa = flag.For = comparacaoSemParenteses(&*p,&aux,&flag.erro);
+								//printf("condicao: %d    ",flag.For);
+								//printf("depois de verificar condicao: %s",aux->token);
+								LocalFor=linha->ant;
+								tamFor=tam-1;
+								if(!primeExec){
+									aux=aux->prox;
+									if(aux!=NULL){
+										testeV = buscaVariavel(&*p,&aux);
+										//printf("     quando achou a var: %d",testeV.valorInt);
+										if(strcmp(testeV.nome,aux->token)==0){
+											aux=aux->prox;
+											if(aux!=NULL){
+												if(strcmp(aux->token,"+")==0 && aux->prox!=NULL && strcmp(aux->prox->token,"+")==0){
+													if(testeV.terminal==1)
+														testeV.valorInt++;
+													else if(testeV.terminal==2)
+														testeV.valorFloat++;
+													else 
+														flag.erro=1;
+												}else if(strcmp(aux->token,"-")==0 && aux->prox!=NULL && strcmp(aux->prox->token,"-")==0){
+													if(testeV.terminal==1)
+														testeV.valorInt--;
+													else if(testeV.terminal==2){
+														testeV.valorFloat--;
+													}
+													else 
+														flag.erro=1;
+												}else
 													flag.erro=1;
 											}else
 												flag.erro=1;
 										}else
 											flag.erro=1;
+										//printf("      quando atualizou: %d",testeV.valorInt);
+										if(!flag.erro)
+											atualizaVariavel(&*p,testeV);
+										fimFor=aux;
+										aux=posCondicao;
+										flag.executa = flag.For = comparacaoSemParenteses(&*p,&aux,&flag.erro);
+										aux=fimFor;
+										if(flag.For==0){
+											linha=LinhaFinal;
+										}
 									}else
 										flag.erro=1;
-									//printf("      quando atualizou: %d",testeV.valorInt);
-									if(!flag.erro)
-										atualizaVariavel(&*p,testeV);
-									fimFor=aux;
-									aux=posCondicao;
-									flag.executa = flag.For = comparacaoSemParenteses(&*p,&aux,&flag.erro);
-									aux=fimFor;
-									if(flag.For==0){
-										linha=LinhaFinal;
-									}
-								}else
-									flag.erro=1;
-							}else{
-								while(aux!=NULL)
-									aux=aux->prox;
-							}
+								}else{
+									while(aux!=NULL)
+										aux=aux->prox;
+								}
+							}else
+								flag.erro=1;
 						}else
 							flag.erro=1;
-					}else
-						flag.erro=1;
+					}
 				}
 				//fim do for
 				if(aux!=NULL){
@@ -495,26 +514,27 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 				}
 				//chamada de funcao
 				if(aux!=NULL)
-					funcao = buscaFuncao(linhaF, aux->token);
-				if(funcao!=NULL){
-					//verifica variaveis dentro da chamada antes de ir pra linha da funcao
-					aux=aux->prox;
-					if(aux!=NULL){
-						if(strcmp(aux->token,"(")==0){
-							if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
-								chamaFuncao(funcao,&aux,&flag.erro,&*p);
-							Local=linha;
-							while(linha!=NULL && !flag.funcao){
-								linha=linha->ant;
-								aux=linha->pTokens;
-								if(aux!=NULL){
-									aux=aux->prox;
+						funcao = buscaFuncao(linhaF, aux->token);
+					if(funcao!=NULL){
+						//verifica variaveis dentro da chamada antes de ir pra linha da funcao
+						aux=aux->prox;
+						if(aux!=NULL){
+							if(strcmp(aux->token,"(")==0){
+								if(aux->prox!=NULL && strcmp(aux->prox->token,")")!=0)
+									chamaFuncao(funcao,&aux,&flag.erro,&*p);
+								Local=linha;
+								while(linha!=NULL && !flag.funcao){
+									linha=linha->ant;
+									aux=linha->pTokens;
 									if(aux!=NULL){
-										if(strcmp(aux->token,linhaF->nomeFunc)==0){
-											flag.funcao=1;
-											tamOriginal=tam;
-											tam=tamFuncao;
-											flagBreak=1;		
+										aux=aux->prox;
+										if(aux!=NULL){
+											if(strcmp(aux->token,linhaF->nomeFunc)==0){
+												flag.funcao=1;
+												tamOriginal=tam;
+												tam=tamFuncao;
+												flagBreak=1;		
+											}
 										}
 									}
 								}
@@ -522,7 +542,6 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 						}
 					}
 				}
-			}
 			if(aux!=NULL){
 				if(strcmp(aux->token,"else")==0){
 					if(!flag.If){
@@ -564,18 +583,18 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 						linha=LocalWhile;
 						tam=tamWhile;
 					}
+					if(!flag.executa)
+						flag.executa=1;
 					if(flag.funcao){
 					    flag.funcao=0;
 					    tam=tamOriginal;
 					    while(linha != NULL && linha != Local) { 
 					        linha = linha->prox;
 					    }
-					    if (linha != NULL) {
+					    if (linha != NULL){
 					        linha = linha->prox;
 					    }
 					}
-					if(!flag.executa && flag.terminal==0)
-						flag.executa=1;
 				}
 			}
 			if(aux!=NULL)
@@ -608,7 +627,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 					getch();	
 				}		
 			}	
-		} 
+		}
 	}
 	if(flag.erro){
 		Menu2();
@@ -619,6 +638,7 @@ Linha *ExecutaSequencial(Linha *linha, Pilha **p){
 	gotoxy(28,6);
 	printf("Fim da execucao");
 	return listaConsoleLog;		
+	
 }
 
 
